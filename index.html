@@ -271,6 +271,8 @@ details.more[open] summary::after{content:"－"}
 .chart .hp.sel{stroke:var(--orange)}
 .ptnote{margin:6px 0 0;font-size:13px;line-height:1.6;min-height:2.6em;padding:8px 12px;border-radius:var(--r-sm);background:var(--peach-soft);color:var(--muted)}
 .ptnote.on{color:var(--ink)}
+.night .ptnote{background:rgba(255,255,255,.12);color:rgba(255,255,255,.78)}
+.night .ptnote.on{color:#fff}
 .ptnote b{font-family:var(--font-num);margin-right:.7em;color:var(--orange)}
 .tlbox{grid-column:1/-1;margin-top:8px}
 .tlbox>summary{cursor:pointer;font-size:13px;font-weight:700;padding:6px 0;list-style:none}
@@ -379,7 +381,6 @@ details.more[open] summary::after{content:"－"}
 .mini-face{pointer-events:none;position:relative;flex:none;width:150px;height:196px;border:0;padding:0;background:none;cursor:pointer;overflow:hidden;border-radius:0 0 75px 75px;-webkit-tap-highlight-color:transparent;filter:drop-shadow(0 10px 20px rgba(20,20,22,.25))}
 .mini-face .hit{position:absolute;left:48px;top:8px;width:56px;height:60px;pointer-events:auto;border-radius:50%}
 .mini-face{transition:opacity .25s}
-.mini.scrolling .mini-face{opacity:.3}
 .mini-face::before{content:"";position:absolute;left:0;bottom:0;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle at 35% 30%, #ffe6cf, #f2875a 50%, #3a57f2 100%);border:3px solid var(--card)}
 .mini-face .fstack{position:absolute;left:50%;top:10px;width:188px;transform:translateX(-50%);transform-origin:50% 100%;animation:mbreathe 4.5s ease-in-out infinite}
 .mini.talking .mini-face .fstack{animation:mtalk .4s ease-in-out 6 alternate}
@@ -450,6 +451,7 @@ details.more[open] summary::after{content:"－"}
 .st-ctrl{display:flex;gap:8px;justify-content:center;padding:10px 12px}
 .st-ctrl button{border:0;border-radius:999px;background:rgba(255,255,255,.8);color:#141416;font-weight:700;font-size:13px;padding:8px 14px;cursor:pointer;white-space:nowrap}
 .st-ctrl button[aria-pressed="true"]{background:#141416;color:#fff}
+@media (max-width:400px){.st-ctrl{gap:5px;padding:10px 8px}.st-ctrl button{font-size:12px;padding:8px 9px}}
 .st-end{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:10px}
 .ticker{background:#141416;color:#fff;overflow:hidden;white-space:nowrap;font-family:var(--font-num);font-size:13px;padding:7px 0 calc(7px + env(safe-area-inset-bottom,0px))}
 .ticker .run{display:inline-block;width:max-content;white-space:nowrap;padding-left:100%;animation:run 40s linear infinite}
@@ -577,7 +579,7 @@ details.more[open] summary::after{content:"－"}
   <div class="st-bottom" id="stBot">
     <div class="lower"><span class="lt" id="stTag"></span><span class="lh" id="stHead"></span></div>
     <div class="cap" id="stCap"><span class="who">キャスター</span><p class="cap-t" id="stText"></p><span class="nx">タップで次へ ▼</span></div>
-    <div class="st-ctrl"><button type="button" id="stPrev">◀ 前</button><button type="button" id="stPlay" aria-pressed="true">⏸ 止める</button><button type="button" id="stNext">次 ▶</button><button type="button" id="stVoice" aria-pressed="false">🔈 声で読む</button><button type="button" id="stVset" aria-label="声の設定">⚙ 声</button></div>
+    <div class="st-ctrl"><button type="button" id="stPrev">◀ 前</button><button type="button" id="stPlay" aria-pressed="true">⏸ 止める</button><button type="button" id="stNext">次 ▶</button><button type="button" id="stVoice" aria-pressed="false">🔈 声で読む</button><button type="button" id="stVset" aria-label="声の設定">⚙</button></div>
     <div class="ticker"><span class="run" id="stTicker"></span></div>
   </div>
   <div class="vpanel" id="vpanel" hidden role="dialog" aria-label="声の設定"></div>
@@ -850,10 +852,19 @@ function saveTrades(){ try { localStorage.setItem(TKEY, JSON.stringify(TRADES));
 const yen = n => Math.round(n).toLocaleString("ja-JP") + "円";
 const yenPx = n => Number(n).toLocaleString("ja-JP",{maximumFractionDigits:1}) + "円";
 const LAST = DAY.dates.length - 1;
-TRADES.forEach(t => { if (!t.d) t.d = DAY.dates[LAST]; });
+const YEAR = DAY.date.slice(0,4);
+const isoOf = lab => { const m = /^(\d{1,2})\/(\d{1,2})$/.exec(lab); return m ? `${YEAR}-${m[1].padStart(2,"0")}-${m[2].padStart(2,"0")}` : lab; };
+const ISO = DAY.dates.map(isoOf);
+TRADES.forEach(t => { t.d = t.d ? isoOf(t.d) : ISO[LAST]; });
+saveTrades();
 const ALL = [...DAY.stocks, ...DAY.watch.map(w => ({...w, qty:0, notes:{}, why:""}))];
+/* 今日のデータから消えた株の記録が残っていたら、最後に売買した値段で表示する（現金だけが減らないように） */
+[...new Set(TRADES.map(t => t.id))].filter(id => !ALL.some(s => s.id === id)).forEach(id => {
+  const last = TRADES.filter(t => t.id === id).slice(-1)[0];
+  ALL.push({id, name:id, code:"", area:"その他", country:"", what:"今日のデータにはない株", ccy:"JPY", qty:0, notes:{}, why:"今日のデータにはないため、最後に売買した値段で表示しています。", hist:DAY.dates.map(() => last.p)});
+});
 const jpyAt = (s,i) => s.hist[i] == null ? null : s.hist[i] * (s.ccy === "USD" ? DAY.fxHist[i] : 1);
-const tIdx = t => { const k = DAY.dates.indexOf(t.d); return k < 0 ? LAST : k; };
+const tIdx = t => { const k = ISO.indexOf(t.d); return k >= 0 ? k : (t.d < ISO[0] ? 0 : LAST); };
 function portfolio(){
   const rows = ALL.map(s => {
     const base = s.qty || 0;
@@ -922,22 +933,27 @@ function lineChart(vals, base, notes){
   s+=`<text class="ax" x="${W-R}" y="${(by-6).toFixed(1)}" text-anchor="end">最初の額 ${yen(base)}</text>`;
   s+=`<path d="${area}" fill="url(#${gid})"/>`;
   s+=`<path d="${line}" fill="none" stroke="var(--ink)" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>`;
-  const boxes=[];
-  const hit=(x0,x1,y)=>boxes.some(q=>Math.abs(q.y-y)<15 && x0<q.x1+2 && x1>q.x0-2);
+  /* 数字の置き場所：線・点・「最初の額」・ほかの数字に重ならない場所を、上下の候補から選ぶ */
+  const boxes=[], samp=[];
+  for(let k=0;k<pts.length;k++){ samp.push(pts[k]); if(k){ const [ax,ay]=pts[k-1],[bx,by2]=pts[k]; const m=Math.ceil(Math.hypot(bx-ax,by2-ay)/3); for(let j=1;j<m;j++) samp.push([ax+(bx-ax)*j/m, ay+(by2-ay)*j/m]); } }
+  const bw=("最初の額 "+yen(base)).length*7.6, bRect={x0:W-R-bw,x1:W-R,y0:by-19,y1:by-1};
+  const ov=(a,b)=>a.x0<b.x1+2&&a.x1>b.x0-2&&a.y0<b.y1+2&&a.y1>b.y0-2;
+  const cost=(r)=>{ let c=0;
+    if(r.y0<2||r.y1>H-B-3) c+=100;
+    c+=samp.filter(q=>q[0]>r.x0-4&&q[0]<r.x1+4&&q[1]>r.y0-4&&q[1]<r.y1+4).length*3;
+    if(ov(r,bRect)) c+=20; if(boxes.some(q=>ov(r,q))) c+=20; return c; };
   pts.forEach((p,i)=>{
     const d=i?vals[i]-vals[i-1]:0, c=i?dirClass(Math.round(d)):"flat";
     s+=`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${i===n-1?6:4.5}" fill="${i?`var(--${c==="up"?"up":c==="down"?"down":"muted"})`:"var(--card)"}" stroke="var(--ink)" stroke-width="${i?0:2}"/>`;
     if(i){
       const txt=short(d), w=txt.length*7.4+6;
       const cx=Math.max(w/2+2, Math.min(W-w/2-2, p[0]));
-      const x0=cx-w/2, x1=cx+w/2;
-      let above=d>=0; if(!above && p[1]+20>H-B-4) above=true; if(above && p[1]-12<T-14) above=false;
-      const yOf=ab=>ab?p[1]-12:p[1]+20;
-      if(hit(x0,x1,yOf(above))) above=!above;
-      let ty=yOf(above);
-      if(hit(x0,x1,ty)) ty+= above?-15:15;
-      boxes.push({x0,x1,y:ty});
-      s+=`<text class="pl ${c}" x="${cx.toFixed(1)}" y="${ty.toFixed(1)}" text-anchor="middle">${txt}</text>`;
+      const up=[-12,-27,-42], dn=[20,35,50];
+      const cand=(d>=0?up.concat(dn):dn.concat(up)).map(o=>p[1]+o);
+      let best=null;
+      for(const ty of cand){ const r={x0:cx-w/2,x1:cx+w/2,y0:ty-11,y1:ty+3}; const k=cost(r); if(!best||k<best.k) best={k,ty,r}; if(k===0) break; }
+      boxes.push(best.r);
+      s+=`<text class="pl ${c}" x="${cx.toFixed(1)}" y="${best.ty.toFixed(1)}" text-anchor="middle">${txt}</text>`;
     }
     s+=`<text class="ax" x="${p[0].toFixed(1)}" y="${H-8}" text-anchor="${i===0?"start":i===n-1?"end":"middle"}">${DAY.dates[i]}${i===0?" 購入":""}</text>`;
     if(notes) s+=`<circle class="hp" data-i="${i}" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="15"/>`;
@@ -1056,7 +1072,7 @@ function render(){
       <h3>${s.name}<small>${own}・1株 ${native(s)}</small></h3>
       <p>${esc(d.text)}</p>
       <p class="other">${esc(d.other)}</p>
-      <div class="acts"><button type="button" class="btn line go" data-trade="${d.id}:${tside}">${SIDE_LABEL[d.side]}</button></div>
+      <div class="acts">${d.side==="wait" ? (s.qty>0 ? `<button type="button" class="btn line go" data-detail="${d.id}">くわしく見る</button>` : `<button type="button" class="btn line go" data-trade="${d.id}:buy">売り買いの画面へ</button>`) : `<button type="button" class="btn line go" data-trade="${d.id}:${tside}">${SIDE_LABEL[d.side]}</button>`}</div>
     </div>`;}).join("");
   const extra = p.rows.filter(r => !r.base && !DAY.ideas.some(d => d.id === r.id));
   const extraHtml = extra.length ? `<p class="ideas-sub">ほかの株</p>` + extra.map(r => {
@@ -1158,7 +1174,7 @@ function openWord(id){
 bg.addEventListener("click", closeSheet);
 
 /* ===== 架空の売買 ===== */
-let T = {id:null, side:"buy", q:1};
+let T = {id:null, side:"buy", q:1, over:0};
 function tradeState(){
   const p = portfolio(); const r = p.rows.find(x => x.id === T.id);
   const max = T.side === "buy" ? Math.floor(p.cash / r.price + 1e-9) : r.qty;
@@ -1169,7 +1185,8 @@ function tradeCalc(){
   T.q = Math.max(1, Math.min(T.q, Math.max(1, max)));
   const amt = T.q * r.price, buy = T.side === "buy";
   const ok = max >= 1 && T.q <= max;
-  const reason = buy ? (max < 1 ? "現金が足りません。先にほかの株を売ると買えます" : "") : (r.qty < 1 ? "この株は持っていません" : "");
+  let reason = buy ? (max < 1 ? "現金が足りません。先にほかの株を売ると買えます" : "") : (r.qty < 1 ? "この株は持っていません" : "");
+  if (!reason && T.over && T.q === Math.max(1, max)) reason = `いまは最大${Math.max(1,max)}株までです`;
   return {p, r, max, amt, buy, ok, reason};
 }
 /* 数字だけを書きかえる（入力欄やボタンは作りなおさない＝1回目のタップが消えない） */
@@ -1203,9 +1220,9 @@ function drawTrade(){
     <p class="tnote">練習用：手数料なし・1株から・${DAY.dates[LAST]}の終値で売買します</p>
     <button type="button" class="btn line close" data-close style="display:block;margin:12px auto 0">とじる</button>`;
 }
-function openTrade(id, side){ T = {id, side: side || "buy", q:1}; drawTrade(); openSheetEl(document.getElementById("tsheet")); }
+function openTrade(id, side){ T = {id, side: side || "buy", q:1, over:0}; drawTrade(); openSheetEl(document.getElementById("tsheet")); }
 document.getElementById("tradeBody").addEventListener("input", e => {
-  if (e.target.id === "tq"){ const n = parseInt(e.target.value,10); if (n >= 1){ T.q = n; refreshTrade(); } }
+  if (e.target.id === "tq"){ const n = parseInt(e.target.value,10); if (n >= 1){ const mx = Math.max(1, tradeState().max); T.over = n > mx ? mx : 0; T.q = Math.min(n, mx); if (T.over) e.target.value = T.q; refreshTrade(); } }
 });
 document.getElementById("tradeBody").addEventListener("change", e => {
   if (e.target.id === "tq"){ T.q = Math.max(1, parseInt(e.target.value,10) || 1); refreshTrade(); e.target.value = T.q; }
@@ -1215,7 +1232,7 @@ function toast(msg){ const t = document.getElementById("toast"); t.textContent =
 function doTrade(){
   const {r, max} = tradeState(); if (T.q > max || max < 1) return;
   const buy = T.side === "buy";
-  TRADES.push({id:r.id, q: buy ? T.q : -T.q, p: r.price, t: Date.now(), d: DAY.dates[LAST]});
+  TRADES.push({id:r.id, q: buy ? T.q : -T.q, p: r.price, t: Date.now(), d: ISO[LAST]});
   saveTrades(); closeSheet(); render();
   toast(`${r.name}を${T.q}株${buy?"買いました":"売りました"}（架空）`);
 }
@@ -1227,7 +1244,7 @@ document.addEventListener("click", e => {
   if (e.target.closest("[data-close]")){ closeSheet(); return; }
   const tr = e.target.closest("[data-trade]"); if (tr){ const [id,side]=tr.dataset.trade.split(":"); openTrade(id, side); return; }
   const dt = e.target.closest("[data-detail]"); if (dt){ location.hash = "#stocks/" + dt.dataset.detail; return; }
-  if (e.target.closest("[data-back]")){ if (history.length > 1 && location.hash.includes("/")) history.back(); else location.hash = "#stocks"; return; }
+  if (e.target.closest("[data-back]")){ location.hash = "#stocks"; return; }
   const hp = e.target.closest(".hp"); if (hp){
     const box = hp.closest(".chart"), i = +hp.dataset.i;
     let notes = {}; try { notes = JSON.parse(box.dataset.notes || "{}"); } catch(_){}
@@ -1482,7 +1499,7 @@ function buildCast(){
   const NA = DAY.articles.length, day = DAY.label.replace(" 朝の便","");
   const L = [];
   L.push({g:0, kind:"open", text:`おはようございます。${day.replace(/（.）/,"")}、朝のニュースです。`});
-  L.push({g:0, kind:"day", text:`まずは、あなたの株から。きのうのニュースで、あなたの株は ${signed(p.day)} でした。`, val:p.day});
+  L.push({g:0, kind:"day", text:`まずは、あなたの株から。きのう、あなたの株は ${signed(p.day)} でした。`, val:p.day});
   L.push({g:0, kind:"list", text:`今日のニュースは${NA}本です。`});
   DAY.articles.forEach((a,ai)=>{
     const lead = ai===0 ? "最初は" : ai===NA-1 ? "最後は" : "続いては";
@@ -1505,7 +1522,7 @@ function monitorHTML(l){
   if (l.kind === "close") return `<div class="orb"></div><span class="m-tag">おしまい</span><div class="m-num">また明日</div><div class="m-cap">記事で、ポイントをじっくり読もう</div>`;
   const a = DAY.articles[l.a];
   const head = l.kind === "point" ? `<div class="m-head"><small>ポイント ${l.k+1}／${a.heads.length}</small>${esc(a.heads[l.k])}</div>`
-    : l.kind === "impact" ? `<div class="m-head"><small>あなたの株への影響</small>${a.stocks.length ? `<span class="${dirClass(Math.round(l.val))}">${signed(l.val)}</span>` : "直接の関係なし"}</div>`
+    : l.kind === "impact" ? `<div class="m-head"><small>関係する株のきのうの動き</small>${a.stocks.length ? `<span class="${dirClass(Math.round(l.val))}">${signed(l.val)}</span>` : "直接の関係なし"}</div>`
     : `<div class="m-head"><small>${esc(flat(a.hook))}</small></div>`;
   return `<div class="orb"></div><span class="m-tag">ニュース ${l.a+1}／${NA}・${a.tag}</span><div class="m-num">${a.hero.num}</div><div class="m-cap">${a.hero.cap}</div>${head}`;
 }
@@ -1727,15 +1744,17 @@ function miniSay(view, force){
   miniView = view;
   document.getElementById("miniText").textContent = miniLine(view);
   faceThenRest(document.getElementById("miniFace"), force ? ["f7","f5","f1","f3","f6"][Math.floor(Math.random()*5)] : miniFaceFor(view), 4000);
-  mini.classList.add("say"); mini.classList.remove("talking"); void mini.offsetWidth; mini.classList.add("talking");
+  shownAt = Date.now(); mini.classList.add("say"); mini.classList.remove("talking"); void mini.offsetWidth; mini.classList.add("talking");
   document.getElementById("miniDot").hidden = true;
   clearTimeout(miniTimer); miniTimer = setTimeout(miniHide, 7000);
 }
 function miniHide(){ mini.classList.remove("say","talking"); }
 document.getElementById("miniFace").addEventListener("click", ()=>{ if (mini.classList.contains("say")) miniHide(); else miniSay(miniView || "home", true); });
 document.getElementById("miniX").addEventListener("click", miniHide);
-let scrollT = null;
-window.addEventListener("scroll", ()=>{ mini.classList.add("scrolling"); clearTimeout(scrollT); scrollT = setTimeout(()=>mini.classList.remove("scrolling"), 900); }, {passive:true});
+/* アナウンサー以外の画面を触ったら、吹き出しだけをすぐ閉じる（顔は消さない） */
+let shownAt = 0;
+const touchAway = e => { if (!mini.classList.contains("say") || Date.now() - shownAt < 500) return; if (e.target && e.target.closest && e.target.closest(".mini")) return; miniHide(); };
+["pointerdown","wheel","touchmove","keydown"].forEach(ev => window.addEventListener(ev, touchAway, {passive:true, capture:true}));
 window.addEventListener("hashchange", ()=>{ const v=hv(); miniSay(VIEWS.includes(v)?v:"home"); });
 
 render(); show(); window.__phrasify(document.body);
