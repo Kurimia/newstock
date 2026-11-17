@@ -1,0 +1,1516 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NEWSTOCK</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+/* 方針：青＋オレンジ＋モノクロ。黒い面と白い面でメリハリ。上げ下げだけ赤と緑 */
+:root{
+  --bg:#f6f3ef;
+  --card:#ffffff;
+  --ink:#141416;
+  --muted:#7a756f;
+  --line:#e9e3dc;
+  --blue:#3a57f2;
+  --blue-soft:#eaeeff;
+  --orange:#f2875a;
+  --peach:#fde3d4;
+  --peach-soft:#fff3ec;
+  --night:#141416;
+  --up:#e03a3e;
+  --down:#14935f;
+  --r-xl:28px;
+  --r-lg:22px;
+  --r-sm:14px;
+  --font-body:"Zen Kaku Gothic New","Hiragino Sans","Noto Sans JP",sans-serif;
+  --font-num:"Outfit","Zen Kaku Gothic New","Hiragino Sans",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0c0c0e;--card:#18181b;--ink:#f3f1ee;--muted:#9d988f;--line:#2b2a2e;
+    --blue:#8c9dff;--blue-soft:#1e2340;--orange:#ff9a6b;--peach:#3b2519;--peach-soft:#21170f;--night:#1f1f23;
+    --up:#ff6b6b;--down:#45d39a;color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0c0c0e;--card:#18181b;--ink:#f3f1ee;--muted:#9d988f;--line:#2b2a2e;
+  --blue:#8c9dff;--blue-soft:#1e2340;--orange:#ff9a6b;--peach:#3b2519;--peach-soft:#21170f;--night:#1f1f23;
+  --up:#ff6b6b;--down:#45d39a;color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:var(--bg);
+  color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.8;-webkit-text-size-adjust:100%;
+  padding-bottom:calc(260px + env(safe-area-inset-bottom,0px));
+  word-break:keep-all;overflow-wrap:anywhere;line-break:strict;text-wrap:pretty;
+}
+/* 背景：画面に固定したオレンジと青のグラデーション（白いカードとはっきり分ける） */
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(70% 55% at 100% 0%, rgba(58,87,242,.55), transparent 72%),
+    radial-gradient(75% 55% at 0% 8%, rgba(242,135,90,.62), transparent 72%),
+    radial-gradient(80% 50% at 100% 70%, rgba(242,135,90,.42), transparent 72%),
+    radial-gradient(75% 50% at 0% 100%, rgba(58,87,242,.45), transparent 72%),
+    #f1e4dc}
+:root[data-theme="dark"] body::before{background:
+    radial-gradient(70% 55% at 100% 0%, rgba(58,87,242,.42), transparent 72%),
+    radial-gradient(75% 55% at 0% 8%, rgba(242,135,90,.32), transparent 72%),
+    radial-gradient(80% 50% at 100% 70%, rgba(242,135,90,.22), transparent 72%),
+    radial-gradient(75% 50% at 0% 100%, rgba(58,87,242,.32), transparent 72%),
+    #0c0c0e}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) body::before{background:
+    radial-gradient(70% 55% at 100% 0%, rgba(58,87,242,.42), transparent 72%),
+    radial-gradient(75% 55% at 0% 8%, rgba(242,135,90,.32), transparent 72%),
+    radial-gradient(80% 50% at 100% 70%, rgba(242,135,90,.22), transparent 72%),
+    radial-gradient(75% 50% at 0% 100%, rgba(58,87,242,.32), transparent 72%),
+    #0c0c0e}}
+h1,h2,h3,h4{text-wrap:balance}
+button{font:inherit;color:inherit}
+.wrap{max-width:720px;margin:0 auto;padding:calc(10px + env(safe-area-inset-top,0px)) 16px 24px}
+.up{color:var(--up)} .down{color:var(--down)} .flat{color:var(--muted)}
+.num{font-family:var(--font-num);font-variant-numeric:tabular-nums;white-space:nowrap}
+.hl{background:linear-gradient(transparent 60%, var(--peach) 60%);padding:0 2px}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+
+/* 黒い面（ぼんやり光る玉と細い線） */
+.night{--card:#1d1d21;--ink:#ffffff;--muted:rgba(255,255,255,.62);--line:rgba(255,255,255,.14);--blue:#9aabff;--blue-soft:rgba(255,255,255,.08);--up:#ff7b73;--down:#4fd9a0;
+  background:#141416;color:#fff;position:relative;overflow:hidden;isolation:isolate}
+:root[data-theme="dark"] .night{background:#1f1f23}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .night{background:#1f1f23}}
+.orb{position:absolute;z-index:-1;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle at 50% 42%, #ffe6cf 0%, #ffad7c 22%, #f2875a 38%, #6b6cf0 62%, rgba(58,87,242,0) 74%);
+  filter:blur(26px);opacity:.95}
+.grain::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:.22;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+.arcs{position:absolute;inset:0;z-index:-1;pointer-events:none;width:100%;height:100%}
+.arcs path{fill:none;stroke:rgba(255,255,255,.35);stroke-width:1}
+
+/* 上のバー */
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:8px 6px 14px}
+.brand{margin:0;font-weight:700;font-size:15px;letter-spacing:.02em;display:flex;align-items:center;gap:8px}
+.brand i{display:inline-block;width:14px;height:14px;border-radius:50%;background:radial-gradient(circle at 40% 35%, #ffd2b4, var(--orange) 45%, var(--blue) 100%)}
+.date{font-size:13px;color:var(--muted)}
+
+/* 画面 */
+section.view{display:none;flex-direction:column;gap:16px}
+section.view.on{display:flex}
+.sec{display:flex;justify-content:space-between;align-items:center;padding:0 6px;margin:10px 0 -4px}
+.sec h2{margin:0;font-size:19px;font-weight:700;letter-spacing:.01em;white-space:nowrap}
+.sec .more-link{flex:none;white-space:nowrap;margin-left:10px}
+.sec h2 small{font-size:13px;color:var(--muted);font-weight:500;margin-left:6px}
+.more-link{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--ink);text-decoration:none;background:none;border:0;cursor:pointer;padding:0}
+.more-link::after{content:"→";display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;border:1.5px solid var(--ink);font-size:13px}
+.card{background:var(--card);border-radius:var(--r-xl)}
+.lead-note{font-size:13px;color:var(--muted);margin:-6px 6px 0;max-width:65ch}
+
+/* ボタン */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:999px;padding:9px 18px;font-size:14px;font-weight:700;cursor:pointer;border:1.5px solid transparent;line-height:1.3;white-space:nowrap}
+.btn.orange{background:var(--orange);color:#141416}
+.btn.blue{background:var(--blue);color:#fff}
+.night .btn.blue{background:#3a57f2}
+.btn.line{background:transparent;border-color:currentColor}
+.btn.go{padding:6px 6px 6px 20px}
+.btn.go::after{content:"→";display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;border:1.5px solid currentColor;margin-left:6px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* ホーム：今日の数字 */
+.hero{padding:22px 22px 18px;border-radius:var(--r-xl)}
+.hero .orb{width:240px;height:240px;right:-70px;top:-80px}
+.hero .k{font-size:14px;color:var(--muted)}
+.hero .amt{font-family:var(--font-num);font-weight:600;font-size:52px;line-height:1.1;letter-spacing:-.02em;font-variant-numeric:tabular-nums;margin:6px 0 6px;white-space:nowrap}
+.hero .sub{font-size:13px;color:var(--muted)}
+.hero .sub b{color:#fff;font-weight:500}
+.hero svg.sp{display:block;width:100%;height:64px;margin-top:14px}
+.hero .row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap}
+.hero .row span{font-size:12px;color:var(--muted)}
+.mkt{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mkt div{background:var(--card);border-radius:var(--r-lg);padding:12px 16px;display:flex;flex-direction:column;line-height:1.4;min-width:0}
+.mkt .k{font-size:12px;color:var(--muted)}
+.mkt .v{font-family:var(--font-num);font-size:18px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mkt .d{font-family:var(--font-num);font-size:13px;font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* タグ */
+.tag{display:inline-flex;align-items:center;font-size:12px;font-weight:700;padding:3px 12px;border-radius:999px;background:var(--peach);color:var(--ink);white-space:nowrap}
+.tag.t-日本{background:var(--blue-soft);color:var(--blue)}
+.tag.t-海外{background:var(--peach);color:#b4532a}
+.tag.t-経済{background:var(--ink);color:var(--card)}
+.tag.t-テック{background:transparent;color:var(--ink);border:1.5px solid var(--ink);padding:2px 11px}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tag.t-海外{color:var(--orange)}}
+:root[data-theme="dark"] .tag.t-海外{color:var(--orange)}
+
+/* ホーム：今日のニュース（横スクロール） */
+.hnews{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -16px;padding:2px 16px 6px;scrollbar-width:none}
+.hnews::-webkit-scrollbar{display:none}
+.nc{flex:none;width:236px;scroll-snap-align:start;scroll-margin-left:16px;background:var(--card);border:0;border-radius:var(--r-xl);padding:18px 20px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:8px}
+.nc .h{font-size:13px;color:var(--muted);line-height:1.5}
+.nc .ti{font-size:17px;font-weight:700;line-height:1.5}
+.nc .im{margin-top:auto;padding-top:10px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
+.nc .im b{font-family:var(--font-num);font-weight:600}
+
+/* ホーム：銘柄の行（取引リスト風） */
+.slist{padding:6px 18px}
+.srow{display:grid;grid-template-columns:40px 1fr 56px auto;align-items:center;gap:12px;width:100%;padding:12px 0;border:0;border-bottom:1px solid var(--line);background:none;text-align:left;cursor:pointer;font-size:15px}
+.srow:last-child{border-bottom:0}
+.ico{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:15px;background:var(--peach-soft);color:#b4532a;border:1px solid var(--peach)}
+.ico.us{background:var(--blue-soft);color:var(--blue);border-color:transparent}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .ico{color:var(--orange)}}
+:root[data-theme="dark"] .ico{color:var(--orange)}
+.srow .n{font-weight:700;line-height:1.35}
+.srow .n small{display:block;font-weight:400;font-size:12px;color:var(--muted)}
+.srow svg{width:56px;height:24px;display:block}
+.srow .v{text-align:right;font-family:var(--font-num);font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.srow .v small{display:block;font-family:var(--font-body);font-weight:400;font-size:11px;color:var(--muted)}
+
+/* 記事 */
+article{background:var(--card);border-radius:var(--r-xl);padding:22px 20px;display:flex;flex-direction:column;gap:18px;scroll-margin-top:12px}
+.ahead{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ahead .hk{font-size:13px;font-weight:700;color:var(--muted)}
+article h2{font-size:23px;font-weight:700;line-height:1.5;margin:-8px 0 0}
+.keynum{display:flex;align-items:baseline;gap:4px 12px;flex-wrap:wrap;margin-top:-6px}
+.keynum b{font-family:var(--font-num);font-size:38px;font-weight:600;line-height:1.15;color:var(--blue);letter-spacing:-.01em}
+.keynum span{font-size:13px;color:var(--muted)}
+.keypts{border:1.5px solid var(--ink);border-radius:var(--r-lg);padding:16px 18px 12px}
+.keypts h3{margin:0 0 6px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px}
+.keypts h3::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--orange)}
+.keypts ol{margin:0;padding:0;list-style:none}
+.keypts button{all:unset;cursor:pointer;display:flex;gap:12px;align-items:baseline;padding:5px 0;font-weight:700;font-size:15px;line-height:1.55}
+.keypts button:focus-visible{outline:3px solid var(--blue);border-radius:4px}
+.keypts button span,.points h4 span{flex:none;display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--ink);color:var(--card);font-family:var(--font-num);font-size:12px;font-weight:600}
+.points{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:16px;max-width:65ch}
+.points li{scroll-margin-top:16px}
+.points h4{margin:0 0 4px;font-size:16px;display:flex;gap:10px;align-items:baseline;line-height:1.55}
+.points h4 span{background:var(--orange);color:#141416}
+.points p{margin:0;padding-left:34px}
+.term{background:none;border:0;padding:0;font:inherit;font-weight:700;cursor:pointer;border-bottom:2px dotted var(--orange);line-height:inherit}
+.rel{background:var(--peach-soft);border-radius:var(--r-lg);padding:16px 18px;display:flex;flex-direction:column;gap:10px}
+.rel .tot{font-size:14px;font-weight:700;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.rel .tot .num{font-size:24px;font-weight:600;line-height:1.3}
+.rel p{margin:0;font-size:14px;max-width:65ch}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.ychip{display:inline-flex;flex-wrap:wrap;gap:2px 8px;align-items:baseline;max-width:100%;text-align:left;font-size:13px;border-radius:999px;padding:6px 14px;background:var(--card);color:var(--ink);border:0;cursor:pointer}
+.ychip em{font-style:normal;font-size:11px;color:var(--muted)}
+.ychip b{font-family:var(--font-num);font-weight:600;white-space:nowrap}
+details.more summary{cursor:pointer;font-weight:700;list-style:none;display:inline-flex;align-items:center;gap:8px;padding:2px 0;font-size:14px}
+details.more summary::-webkit-details-marker{display:none}
+details.more summary::after{content:"＋";display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;border:1.5px solid var(--ink);font-size:13px}
+details.more[open] summary::after{content:"－"}
+.flow{display:flex;flex-direction:column;margin:14px 0 10px;max-width:65ch}
+.flow div{background:var(--bg);border-radius:var(--r-sm);padding:8px 14px;font-size:14px;font-weight:500}
+.flow i{font-style:normal;color:var(--orange);text-align:center;font-size:12px;line-height:1.7}
+.more p{margin:0 0 10px;max-width:65ch;font-size:15px}
+.more .tip{font-size:14px}
+.more .tip::before{content:"コツ";font-weight:700;color:var(--orange);margin-right:8px}
+.src{font-size:11px;color:var(--muted);display:flex;flex-wrap:wrap;gap:2px 12px;line-height:1.6}
+.src a{color:var(--muted)}
+
+/* 銘柄：まとめ（黒い面） */
+.sumcard{padding:22px 20px;display:flex;flex-direction:column;gap:12px;border-radius:var(--r-xl)}
+.sumcard .orb{width:300px;height:300px;left:-120px;top:-140px;opacity:.75}
+.sumcard h2{margin:0;font-size:14px;color:var(--muted);font-weight:500}
+.journey{display:flex;align-items:baseline;flex-wrap:wrap;gap:2px 12px}
+.journey .from{font-size:15px;color:var(--muted)}
+.journey .to{font-family:var(--font-num);font-size:42px;font-weight:600;line-height:1.15;letter-spacing:-.01em}
+.journey .diff{font-size:15px;font-weight:600}
+.split{width:100%;border-collapse:collapse;font-size:14px}
+.split th{font-size:11px;color:var(--muted);font-weight:500;text-align:right;padding:4px 0;border-bottom:1px solid var(--line)}
+.split th:first-child,.split td:first-child{text-align:left}
+.split td{padding:9px 0 9px 8px;border-bottom:1px solid var(--line);text-align:right;font-family:var(--font-num);font-variant-numeric:tabular-nums;white-space:nowrap}
+.split td:first-child{font-family:var(--font-body);font-weight:700;white-space:normal;padding-left:0}
+.split tr:last-child td{border-bottom:0}
+.split .cash td{color:var(--muted)}
+.split .cash td:first-child{font-weight:500}
+
+/* 銘柄：ニュースから考えるヒント */
+.ideas{display:flex;flex-direction:column;gap:12px}
+.idea{background:var(--card);border-radius:var(--r-xl);padding:18px 20px;display:flex;flex-direction:column;gap:8px;scroll-margin-top:12px;border:2px solid transparent}
+.idea.k-add{background:var(--blue-soft);border-color:var(--blue)}
+.idea.k-new{background:var(--blue-soft);border-color:var(--blue);border-style:dashed}
+.idea.k-sell{background:var(--peach);border-color:var(--orange)}
+.idea.k-wait{background:var(--card);border-color:var(--line);border-style:dashed}
+.idea .kind{font-size:12px;font-weight:700;letter-spacing:.04em;color:var(--muted)}
+.idea.k-add .kind,.idea.k-new .kind{color:var(--blue)}
+.idea.k-sell .kind{color:#b4532a}
+@media (prefers-color-scheme: dark){.idea.k-sell .kind{color:var(--orange)}}
+:root[data-theme="dark"] .idea.k-sell .kind{color:var(--orange)}
+.ideas-sub{margin:6px 6px 0;font-size:13px;font-weight:700;color:var(--muted)}
+.idea .top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.stance{font-size:13px;font-weight:700;padding:3px 12px;border-radius:999px}
+.stance.buy{background:var(--blue);color:#fff}
+.stance.sell{background:var(--orange);color:#141416}
+.stance.wait{border:1.5px solid var(--ink);padding:2px 11px}
+.idea h3{margin:0;font-size:17px;line-height:1.45;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.idea h3 small{font-size:12px;color:var(--muted);font-weight:500}
+.idea p{margin:0;font-size:14px;max-width:65ch}
+.idea .other{color:var(--muted);font-size:13px;display:flex;gap:8px}
+.idea .other::before{content:"反対の見方";flex:none;font-weight:700;font-size:11px;border:1px solid var(--line);border-radius:999px;padding:0 8px;height:20px;line-height:18px;margin-top:2px}
+.idea .acts{display:flex;justify-content:flex-end;margin-top:4px}
+
+/* 銘柄カード */
+.scard{background:var(--card);border-radius:var(--r-xl);padding:20px 20px 16px;display:grid;grid-template-columns:auto 1fr auto;gap:2px 12px;scroll-margin-top:12px}
+.scard>.ico{grid-row:span 2;align-self:center}
+.scard .nm{font-weight:700;font-size:17px;line-height:1.4}
+.scard .meta{font-size:12px;color:var(--muted);line-height:1.5}
+.scard .px{text-align:right;font-family:var(--font-num);font-weight:600;white-space:nowrap}
+.scard .chg{text-align:right;font-family:var(--font-num);font-size:13px;font-weight:600;white-space:nowrap}
+.scard .inv{grid-column:1/-1;display:flex;align-items:baseline;flex-wrap:wrap;gap:2px 10px;margin-top:12px}
+.scard .inv .from{font-size:14px;color:var(--muted)}
+.scard .inv .to{font-family:var(--font-num);font-size:26px;font-weight:600}
+.scard .inv .diff{font-size:14px;font-weight:600}
+.scard .hold{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:0 14px;font-size:12px;color:var(--muted)}
+.scard .why{grid-column:1/-1;font-size:14px;margin:8px 0 0;max-width:65ch;line-height:1.75}
+.scard .why b{color:var(--orange);font-size:12px}
+.scard .acts{grid-column:1/-1;display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+.chart{grid-column:1/-1;margin-top:10px}
+.chart .hp{fill:transparent;stroke:transparent;stroke-width:3;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.chart .hp.sel{stroke:var(--orange)}
+.ptnote{margin:6px 0 0;font-size:13px;line-height:1.6;min-height:2.6em;padding:8px 12px;border-radius:var(--r-sm);background:var(--peach-soft);color:var(--muted)}
+.ptnote.on{color:var(--ink)}
+.ptnote b{font-family:var(--font-num);margin-right:.7em;color:var(--orange)}
+.tlbox{grid-column:1/-1;margin-top:8px}
+.tlbox>summary{cursor:pointer;font-size:13px;font-weight:700;padding:6px 0;list-style:none}
+.tlbox>summary::after{content:" ＋";color:var(--muted)}
+.tlbox[open]>summary::after{content:" −"}
+.tlbox>summary::-webkit-details-marker{display:none}
+#sdetail{display:none}
+#view-stocks.detail-on>*{display:none}
+#view-stocks.detail-on>#sdetail{display:block}
+.back{display:inline-flex;align-items:center;gap:6px;border:0;background:none;font-size:14px;font-weight:700;padding:6px 4px;margin:0 0 8px;cursor:pointer;color:var(--ink)}
+.slist .srow .v .pl{display:block;font-size:12px;font-weight:600}
+.chart svg{width:100%;height:auto;display:block;overflow:visible}
+.chart .ax{font-size:11px;fill:var(--muted);font-family:var(--font-num)}
+.chart .pl{font-size:12px;font-weight:600;font-family:var(--font-num)}
+.chart .pl.up{fill:var(--up)} .chart .pl.down{fill:var(--down)} .chart .pl.flat{fill:var(--muted)}
+.tl{grid-column:1/-1;list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column}
+.tl li{display:grid;grid-template-columns:44px 1fr auto;gap:2px 10px;align-items:baseline;padding:8px 0;border-top:1px solid var(--line);font-size:13px;line-height:1.6}
+.tl .d{font-family:var(--font-num);font-weight:600;color:var(--muted)}
+.tl .a{font-family:var(--font-num);font-weight:600;white-space:nowrap}
+.tl li.top{background:var(--peach-soft);border-radius:var(--r-sm);border-top-color:transparent;padding:8px 12px;margin:2px -12px}
+.night .tl li.top{background:rgba(242,135,90,.16)}
+.tl li.top .t::before{content:"いちばん効いたニュース";display:inline-block;font-size:10px;font-weight:700;color:var(--orange)}
+.tl li.top .t{display:flex;flex-direction:column;align-items:flex-start}
+.tl li.start .a{color:var(--muted);font-weight:500}
+.wlist2{display:flex;flex-direction:column;gap:10px}
+.wcard{background:var(--card);border-radius:var(--r-xl);padding:16px 18px;display:grid;grid-template-columns:40px 1fr auto;gap:2px 12px;align-items:center}
+.wcard .nm{font-weight:700;line-height:1.4}
+.wcard .meta{font-size:12px;color:var(--muted);line-height:1.5}
+.wcard .px{text-align:right;font-family:var(--font-num);font-weight:600;white-space:nowrap}
+.wcard .px small{display:block;font-size:12px}
+.wcard .own{grid-column:2/-1;font-size:12px;color:var(--muted)}
+.wcard .acts{grid-column:1/-1;display:flex;justify-content:flex-end;margin-top:6px;gap:8px}
+.hist{background:var(--card);border-radius:var(--r-xl);padding:16px 20px}
+.hist h3{margin:0 0 6px;font-size:14px}
+.hist ol{list-style:none;margin:0;padding:0}
+.hist li{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:baseline;padding:7px 0;border-top:1px solid var(--line);font-size:13px}
+.hist li:first-child{border-top:0}
+.hist .s{font-weight:700;font-size:12px;padding:0 8px;border-radius:999px}
+.hist .s.b{background:var(--blue-soft);color:var(--blue)} .hist .s.s{background:var(--peach);color:#b4532a}
+.hist .r{font-family:var(--font-num);white-space:nowrap}
+.hist .reset{margin-top:10px}
+.cashnote{font-size:13px;color:var(--muted);margin:0}
+.note{font-size:12px;color:var(--muted);margin:0;max-width:65ch;padding:0 6px}
+
+/* 用語帳 */
+.wgroup h2{font-size:17px;margin:4px 6px 10px;display:flex;align-items:baseline;gap:8px}
+.wgroup h2 span{font-size:12px;color:var(--muted);font-weight:500}
+.wlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px}
+.witem{background:var(--card);border-radius:var(--r-xl);padding:16px 20px}
+.witem b{font-size:16px}
+.witem p{margin:6px 0 0;font-size:14px}
+.witem .ex{color:var(--muted);font-size:12px;margin-top:8px}
+
+/* 下のタブ（浮いた黒いバー） */
+.tabbar{position:fixed;left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:10;display:flex;justify-content:center;pointer-events:none}
+.tabbar .in{pointer-events:auto;display:flex;width:100%;max-width:440px;justify-content:space-around;background:#141416;border-radius:26px;padding:8px 6px;box-shadow:0 10px 30px rgba(20,20,22,.22)}
+:root[data-theme="dark"] .tabbar .in{background:#232327}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tabbar .in{background:#232327}}
+.tabbar a{display:flex;flex-direction:column;align-items:center;gap:1px;text-decoration:none;color:rgba(255,255,255,.5);font-size:10px;font-weight:700;padding:4px 12px;position:relative}
+.tabbar svg{width:22px;height:22px}
+.tabbar a[aria-current="page"]{color:#fff}
+.tabbar a[aria-current="page"]::after{content:"";width:5px;height:5px;border-radius:50%;background:var(--orange);margin-top:1px}
+
+/* シート（用語・売買） */
+.sheet-bg{position:fixed;inset:0;background:rgba(10,10,14,.5);display:none;z-index:20}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:21;background:var(--card);border-radius:28px 28px 0 0;padding:22px 22px calc(28px + env(safe-area-inset-bottom,0px));max-width:720px;margin:0 auto;transform:translateY(105%);transition:transform .22s ease;visibility:hidden;max-height:88vh;overflow:auto}
+.sheet.open{transform:none;visibility:visible}
+.sheet-bg.open{display:block}
+.sheet .sk{font-size:12px;color:var(--muted);margin:0}
+.sheet h3{margin:0 0 8px;font-size:21px}
+.sheet h3 small{font-size:12px;color:var(--muted);font-weight:500;margin-left:6px}
+.sheet p{margin:0 0 8px;max-width:65ch}
+.sheet .ex{color:var(--muted);font-size:14px}
+.sheet .close{margin-top:8px}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--bg);border-radius:999px;padding:4px;margin:12px 0}
+.seg button{border:0;background:none;border-radius:999px;padding:8px;font-weight:700;cursor:pointer;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--card)}
+.tpx{font-size:14px;color:var(--muted)}
+.tpx b{font-family:var(--font-num);font-size:22px;font-weight:600;color:var(--ink)}
+.qty{display:flex;align-items:center;justify-content:center;gap:12px;margin:6px 0 4px}
+.qty button{width:44px;height:44px;border-radius:50%;border:1.5px solid var(--ink);background:none;font-size:22px;line-height:1;cursor:pointer}
+.qty input{width:110px;text-align:center;font-family:var(--font-num);font-size:30px;font-weight:600;border:0;border-bottom:2px solid var(--line);background:none;color:var(--ink);padding:2px 0;-moz-appearance:textfield}
+.qty input::-webkit-outer-spin-button,.qty input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.qty span{font-weight:700}
+.tmax{text-align:center;font-size:12px;color:var(--muted)}
+.tmax button{background:none;border:0;color:var(--blue);font-weight:700;cursor:pointer;font-size:12px;padding:2px 6px}
+.tsum{margin:12px 0;display:flex;flex-direction:column;gap:2px;background:var(--bg);border-radius:var(--r-lg);padding:12px 16px}
+.tsum div{display:flex;justify-content:space-between;font-size:14px}
+.tsum dt{color:var(--muted)} .tsum dd{margin:0;font-family:var(--font-num);font-weight:600}
+.thint{font-size:13px;background:var(--peach-soft);border-radius:var(--r-sm);padding:10px 14px}
+.relnote{font-size:11px;color:var(--muted);margin:8px 0 0;line-height:1.6}
+.thint p{margin:0}
+.thint b{color:var(--orange);margin-right:.6em}
+.thint .oth{margin-top:6px;padding-top:6px;border-top:1px dashed #e6c9b6}
+.thint .oth b{color:var(--muted)}
+.twarn[hidden]{display:none}
+.tgo{width:100%;margin-top:4px;padding:13px}
+.twarn{color:var(--up);font-size:13px;text-align:center;margin:6px 0 0}
+.tnote{font-size:12px;color:var(--muted);text-align:center;margin:10px 0 0}
+.toast{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--ink);color:var(--card);padding:10px 18px;border-radius:999px;font-size:14px;font-weight:700;opacity:0;transition:.25s;z-index:30;pointer-events:none;max-width:calc(100% - 32px);text-align:center}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.howto{font-size:12px;color:var(--muted);padding:8px 6px 0;max-width:65ch}
+
+/* 左下にいつもいるキャスター */
+.mini{position:fixed;left:2px;bottom:calc(72px + env(safe-area-inset-bottom,0px));z-index:9;pointer-events:none}
+.mini-face{pointer-events:none;position:relative;flex:none;width:150px;height:196px;border:0;padding:0;background:none;cursor:pointer;overflow:hidden;border-radius:0 0 75px 75px;-webkit-tap-highlight-color:transparent;filter:drop-shadow(0 10px 20px rgba(20,20,22,.25))}
+.mini-face .hit{position:absolute;left:48px;top:8px;width:56px;height:60px;pointer-events:auto;border-radius:50%}
+.mini-face{transition:opacity .25s}
+.mini.scrolling .mini-face{opacity:.3}
+.mini-face::before{content:"";position:absolute;left:0;bottom:0;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle at 35% 30%, #ffe6cf, #f2875a 50%, #3a57f2 100%);border:3px solid var(--card)}
+.mini-face .fstack{position:absolute;left:50%;top:10px;width:188px;transform:translateX(-50%);transform-origin:50% 100%;animation:mbreathe 4.5s ease-in-out infinite}
+.mini.talking .mini-face .fstack{animation:mtalk .4s ease-in-out 6 alternate}
+@keyframes mbreathe{50%{transform:translateX(-50%) translateY(-4px)}}
+@keyframes mtalk{from{transform:translateX(-50%) translateY(0)}to{transform:translateX(-50%) translateY(-6px)}}
+.mini-face .dot{position:absolute;right:24px;top:36px;width:12px;height:12px;border-radius:50%;background:var(--orange);border:2px solid var(--card)}
+.mini-bubble{pointer-events:auto;position:absolute;left:112px;bottom:140px;width:max-content;background:var(--card);color:var(--ink);border-radius:18px 18px 18px 6px;padding:10px 32px 10px 14px;box-shadow:0 8px 24px rgba(20,20,22,.18);max-width:min(220px, calc(100vw - 124px));font-size:13px;line-height:1.6;opacity:0;transform:translateY(6px) scale(.96);transform-origin:0 100%;transition:opacity .2s,transform .2s;visibility:hidden}
+.mini.say .mini-bubble{opacity:1;transform:none;visibility:visible}
+.mini-bubble p{margin:0;font-weight:500}
+.mini-bubble .go{margin-top:6px;border:0;background:var(--orange);color:#141416;font-weight:700;font-size:12px;border-radius:999px;padding:4px 12px;cursor:pointer}
+.mini-bubble .mx{position:absolute;top:4px;right:4px;width:26px;height:26px;border:0;background:none;color:var(--muted);font-size:16px;cursor:pointer;line-height:1}
+@media (prefers-reduced-motion: reduce){.mini-face .fstack,.mini.talking .mini-face .fstack{animation:none}.mini-bubble{transition:none}}
+/* ニュース番組（キャスターが読む） */
+.castcard{display:grid;grid-template-columns:64px 1fr auto;align-items:center;gap:14px;width:100%;text-align:left;border:0;cursor:pointer;background:var(--card);border-radius:var(--r-xl);padding:12px 16px 12px 12px}
+.castcard .face{width:64px;height:64px;border-radius:50%;background:radial-gradient(circle at 50% 30%, #ffe6cf, #f2875a 55%, #3a57f2);overflow:hidden;display:block}
+.castcard .face img{width:120%;margin:2px 0 0 -10%;display:block}
+.castcard b{display:block;font-size:16px}
+.castcard small{display:block;font-size:12px;color:var(--muted);line-height:1.5}
+.castcard .play{width:44px;height:44px;border-radius:50%;background:var(--orange);color:#141416;display:grid;place-items:center;font-size:15px}
+.castbtn{margin-left:auto;padding:5px 14px;font-size:12px}
+.studio{position:fixed;inset:0;z-index:45;display:none;overflow:hidden;isolation:isolate;color:#141416;background:#f1e4dc;-webkit-user-select:none;user-select:none}
+.studio.open{display:block}
+.studio::before{content:"";position:absolute;inset:0;z-index:-3;background:
+  radial-gradient(70% 50% at 100% 0%, rgba(58,87,242,.6), transparent 72%),
+  radial-gradient(80% 50% at 0% 20%, rgba(242,135,90,.7), transparent 72%),
+  radial-gradient(90% 45% at 100% 75%, rgba(242,135,90,.5), transparent 72%),
+  radial-gradient(80% 45% at 0% 100%, rgba(58,87,242,.45), transparent 72%), #f1e4dc}
+.studio .set{position:absolute;left:-20%;right:-20%;bottom:0;height:62%;z-index:-2;border-radius:50% 50% 0 0/14% 14% 0 0;background:linear-gradient(rgba(255,255,255,.55),rgba(255,255,255,.08) 60%)}
+.studio .beams{position:absolute;inset:0;z-index:-2;background:repeating-linear-gradient(90deg, rgba(255,255,255,0) 0 70px, rgba(255,255,255,.14) 70px 72px)}
+.st-top{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));left:14px;right:6px;display:flex;align-items:center;gap:10px;z-index:5}
+.onair{display:inline-flex;align-items:center;gap:6px;background:#141416;color:#fff;font-family:var(--font-num);font-weight:600;font-size:12px;letter-spacing:.08em;padding:4px 12px;border-radius:999px}
+.onair::before{content:"";width:8px;height:8px;border-radius:50%;background:#e03a3e;animation:blink 1.4s infinite}
+@keyframes blink{50%{opacity:.25}}
+.st-top .ttl{font-size:13px;font-weight:700}
+.st-top .x{margin-left:auto;background:rgba(255,255,255,.7);border:0;width:38px;height:38px;border-radius:50%;font-size:22px;line-height:1;cursor:pointer}
+.st-bars{position:absolute;top:calc(56px + env(safe-area-inset-top,0px));left:14px;right:14px;display:flex;gap:4px;z-index:5}
+.st-bars i{flex:1;height:3px;border-radius:2px;background:rgba(20,20,22,.15);overflow:hidden}
+.st-bars i b{display:block;height:100%;width:0;background:#141416;transition:width .3s}
+.monitor{position:absolute;top:calc(70px + env(safe-area-inset-top,0px));left:14px;right:14px;height:31vh;min-height:200px;border-radius:24px;padding:18px 20px;display:flex;flex-direction:column;justify-content:center;gap:4px;z-index:1;box-shadow:0 18px 40px rgba(20,20,22,.25)}
+.monitor .orb{width:260px;height:260px;right:-60px;top:-90px}
+.monitor .m-tag{align-self:flex-start;font-size:12px;font-weight:700;padding:2px 12px;border-radius:999px;border:1.5px solid rgba(255,255,255,.7)}
+.monitor .m-num{font-family:var(--font-num);font-size:44px;font-weight:600;line-height:1.1;letter-spacing:-.01em;white-space:nowrap}
+.monitor .m-cap{font-size:13px;color:rgba(255,255,255,.7)}
+.monitor .m-head{margin-top:6px;font-size:15px;font-weight:700;line-height:1.5;max-width:50%}
+.monitor .m-head small{display:block;font-size:11px;color:#ffad7c;font-weight:700}
+.monitor .m-list{list-style:none;margin:6px 0 0;padding:0;font-size:13px;font-weight:700;display:flex;flex-direction:column;gap:2px;max-width:56%}
+.monitor .m-list em{font-style:normal;font-size:10px;border:1px solid rgba(255,255,255,.6);border-radius:999px;padding:0 6px;margin-right:6px}
+.monitor .m-in{animation:pop .5s cubic-bezier(.2,.8,.2,1)}
+.anchor{position:absolute;z-index:2;right:-2%;top:calc(21vh + 40px);height:34vh;pointer-events:none;transform-origin:50% 100%;animation:breathe 4.5s ease-in-out infinite}
+.anchor .fstack{height:100%;-webkit-mask-image:linear-gradient(#000 82%,transparent);mask-image:linear-gradient(#000 82%,transparent);filter:drop-shadow(0 12px 22px rgba(20,20,22,.25))}
+.fstack{position:relative;display:block;aspect-ratio:440/512}
+.fx{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity .25s ease}
+.fx.on{opacity:1}
+.studio.talking .anchor{animation:talk .42s ease-in-out infinite alternate}
+@keyframes breathe{50%{transform:translateY(-3px) scale(1.004)}}
+@keyframes talk{from{transform:translateY(0)}to{transform:translateY(-4px)}}
+.st-bottom{position:absolute;left:0;right:0;bottom:0;z-index:4;display:flex;flex-direction:column}
+.lower{margin:0 12px;display:flex;align-items:stretch;border-radius:14px 14px 0 0;overflow:hidden;box-shadow:0 6px 18px rgba(20,20,22,.2)}
+.lower .lt{background:#f2875a;color:#141416;font-weight:700;font-size:12px;padding:8px 12px;display:flex;align-items:center;white-space:nowrap}
+.lower .lh{flex:1;background:#141416;color:#fff;font-weight:700;font-size:13px;padding:6px 12px;line-height:1.45}
+.cap{margin:0 12px;position:relative;background:rgba(255,255,255,.96);border-radius:0 0 22px 22px;padding:10px 16px 12px;min-height:112px;cursor:pointer;box-shadow:0 10px 26px rgba(20,20,22,.18)}
+.cap .who{display:inline-block;font-size:11px;font-weight:700;color:#fff;background:#3a57f2;padding:1px 10px;border-radius:999px;margin-bottom:4px}
+.cap-t{font-size:15px;font-weight:500;line-height:1.65;margin:0}
+.cap-t i{font-style:normal;opacity:0;transition:opacity .12s}
+.cap-t i.on{opacity:1}
+.cap .nx{position:absolute;right:16px;bottom:8px;font-size:12px;color:#7a756f;opacity:0}
+.cap.done .nx{opacity:1;animation:blink 1.2s infinite}
+.st-ctrl{display:flex;gap:8px;justify-content:center;padding:10px 12px}
+.st-ctrl button{border:0;border-radius:999px;background:rgba(255,255,255,.8);color:#141416;font-weight:700;font-size:13px;padding:8px 14px;cursor:pointer;white-space:nowrap}
+.st-ctrl button[aria-pressed="true"]{background:#141416;color:#fff}
+.st-end{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:10px}
+.ticker{background:#141416;color:#fff;overflow:hidden;white-space:nowrap;font-family:var(--font-num);font-size:13px;padding:7px 0 calc(7px + env(safe-area-inset-bottom,0px))}
+.ticker .run{display:inline-block;width:max-content;white-space:nowrap;padding-left:100%;animation:run 40s linear infinite}
+.ticker span{margin-right:28px;white-space:nowrap}
+.ticker .up{color:#ff7b73} .ticker .down{color:#4fd9a0}
+@keyframes run{to{transform:translateX(-100%)}}
+@media (max-height:700px){.monitor{height:27vh;min-height:170px}.monitor .m-num{font-size:36px}.anchor{top:calc(22vh + 40px);height:30vh}.cap{min-height:100px}.cap-t{font-size:14px}}
+@media (prefers-reduced-motion: reduce){.anchor,.studio.talking .anchor,.ticker .run,.onair::before,.cap.done .nx{animation:none}.ticker .run{padding-left:12px}}
+.vpanel{position:absolute;left:0;right:0;bottom:0;z-index:8;background:#fff;color:#141416;border-radius:26px 26px 0 0;padding:18px 18px calc(22px + env(safe-area-inset-bottom,0px));max-height:78vh;overflow:auto;box-shadow:0 -10px 30px rgba(20,20,22,.25)}
+.vpanel[hidden]{display:none}
+.vpanel h3{margin:0 0 4px;font-size:18px}
+.vpanel .vnote{font-size:12px;color:#7a756f;margin:0 0 10px;line-height:1.6}
+.vlist{list-style:none;margin:0 0 12px;padding:0;display:flex;flex-direction:column;gap:6px}
+.vlist li{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;background:#f6f3ef;border-radius:14px;padding:8px 10px 8px 12px}
+.vlist li.sel{background:#141416;color:#fff}
+.vlist label{display:flex;align-items:center;gap:10px;cursor:pointer;min-width:0}
+.vlist input{accent-color:#f2875a;width:18px;height:18px;margin:0}
+.vlist .vn{font-weight:700;font-size:14px;line-height:1.4}
+.vlist .vn small{display:block;font-weight:400;font-size:11px;opacity:.65}
+.vlist .hq{font-size:10px;font-weight:700;background:#f2875a;color:#141416;border-radius:999px;padding:0 7px;margin-left:6px;vertical-align:2px}
+.vlist .try{border:0;border-radius:999px;background:#fff;color:#141416;font-weight:700;font-size:12px;padding:6px 12px;cursor:pointer;white-space:nowrap}
+.vlist li.sel .try{background:#f2875a}
+.vsl{display:grid;grid-template-columns:4.5em 1fr 3em;align-items:center;gap:10px;font-size:13px;font-weight:700;margin:6px 0}
+.vsl input{width:100%;accent-color:#f2875a}
+.vsl output{font-family:var(--font-num);text-align:right}
+.vacts{display:flex;gap:8px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+.vhow{font-size:12px;background:#fff3ec;border-radius:14px;padding:10px 14px;margin:10px 0 0;line-height:1.7}
+.vhow b{color:#b4532a}
+/* 今日のハイライト（ストーリー） */
+.story{position:fixed;inset:0;z-index:40;display:none;color:#fff;background:#111113;-webkit-user-select:none;user-select:none;overflow:hidden;isolation:isolate}
+.story.open{display:block}
+.story .orb{width:520px;height:520px;left:50%;top:58%;transform:translate(-50%,-50%);filter:blur(40px);opacity:.85}
+.story .bars{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));left:14px;right:14px;display:flex;gap:4px;z-index:3}
+.story .bars i{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.25);overflow:hidden}
+.story .bars i b{display:block;height:100%;width:0;background:#fff}
+.story .top{position:absolute;top:calc(22px + env(safe-area-inset-top,0px));left:16px;right:8px;display:flex;justify-content:space-between;align-items:center;z-index:3;font-size:13px;font-weight:700}
+.story .top span{display:flex;align-items:center;gap:8px}
+.story .top span i{display:inline-block;width:12px;height:12px;border-radius:50%;background:radial-gradient(circle at 40% 35%, #ffd2b4, #f2875a 45%, #3a57f2 100%)}
+.story .x{background:none;border:0;color:#fff;font-size:28px;line-height:1;padding:6px 12px;cursor:pointer}
+.story .tap{position:absolute;top:0;bottom:0;z-index:2;background:none;border:0;cursor:pointer}
+.story .tap.l{left:0;width:30%} .story .tap.r{right:0;width:70%}
+.slide{position:absolute;inset:0;display:none;flex-direction:column;justify-content:center;padding:90px 28px 90px;max-width:560px;margin:0 auto}
+.slide.on{display:flex}
+.slide .a{opacity:0}
+.slide.on .a{animation:pop .55s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:var(--d,0s)}
+@keyframes pop{from{opacity:0;transform:translateY(18px) scale(.98)}to{opacity:1;transform:none}}
+.slide .eyebrow{font-size:14px;font-weight:700;opacity:.75;margin:0 0 6px}
+.slide .lead{font-size:22px;font-weight:700;margin:0}
+.slide .huge{font-family:var(--font-num);font-size:68px;font-weight:600;line-height:1.05;letter-spacing:-.02em;margin:10px 0 14px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.slide .sbadge{align-self:flex-start;font-size:16px;font-weight:700;padding:5px 16px;border-radius:999px;border:1.5px solid #fff}
+.slide .sbadge{color:#fff}
+.slide .sbadge.up{background:#e03a3e;border-color:#e03a3e;color:#fff} .slide .sbadge.down{background:#14935f;border-color:#14935f;color:#fff}
+.slide .hook{font-size:36px;font-weight:900;line-height:1.4;margin:0 0 16px}
+.slide .hook mark{display:block;background:none;color:inherit;white-space:nowrap;text-shadow:0 2px 20px rgba(20,20,22,.45)}
+.nb{white-space:nowrap}
+.slide .ntag{align-self:flex-start;font-size:13px;font-weight:700;padding:3px 14px;border-radius:999px;border:1.5px solid rgba(255,255,255,.7);margin-bottom:18px}
+.slide .stitle{font-size:18px;font-weight:700;opacity:.9;margin:0 0 20px;line-height:1.55}
+.slide .simp{align-self:flex-start;font-size:14px;font-weight:700;border:1.5px solid rgba(255,255,255,.5);border-radius:999px;padding:6px 8px 6px 16px;display:flex;align-items:center;gap:8px}
+.slide .simp b{font-family:var(--font-num);font-weight:600;padding:2px 10px;border-radius:999px;color:#fff}
+.slide .simp b.up{background:#e03a3e} .slide .simp b.down{background:#14935f} .slide .simp b.flat{background:rgba(255,255,255,.2)}
+.slide .three{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:12px}
+.slide .three li{font-size:18px;font-weight:700;line-height:1.45;display:flex;gap:10px;align-items:baseline}
+.slide .three li em{flex:none;font-style:normal;font-size:12px;padding:1px 10px;border-radius:999px;border:1.5px solid rgba(255,255,255,.7)}
+.slide .end{margin-top:26px;align-self:flex-start;color:#fff}
+@media (prefers-reduced-motion: reduce){.slide.on .a{animation:none;opacity:1}.sheet{transition:none}.toast{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar"><p class="brand"><i></i>NEWSTOCK</p><span class="date" id="dateLabel"></span></div>
+
+  <section class="view" id="view-home">
+    <div class="night grain hero" id="hero"></div>
+    <button type="button" class="castcard" data-cast="0"><span class="face"><img src="assets/face/f0.webp" alt=""></span><span><b>朝のニュース番組</b><small id="castSub">キャスターが今日のニュースを読みます</small></span><span class="play" aria-hidden="true">▶</span></button>
+    <div class="mkt" id="mkt"></div>
+    <div class="sec"><h2 id="newsCount">今日のニュース</h2><a class="more-link" href="#articles">ぜんぶ読む</a></div>
+    <div class="hnews" id="hnews"></div>
+    <div class="sec"><h2>マイ銘柄</h2><a class="more-link" href="#stocks">くわしく</a></div>
+    <div class="card slist" id="hstocks"></div>
+    <p class="howto" id="howto"></p>
+  </section>
+
+  <section class="view" id="view-articles">
+    <div class="sec"><h2>今日の記事</h2><button type="button" class="more-link" data-story>ハイライト</button></div>
+    <div id="articleList" style="display:flex;flex-direction:column;gap:16px"></div>
+  </section>
+
+  <section class="view" id="view-stocks">
+    <div class="night grain sumcard" id="summary"></div>
+    <div class="sec"><h2>今日のニュースから考える</h2></div>
+    <p class="lead-note">AIからのヒントです。もうけを約束するものではなく、ニュースから「こう考えることもできる」という例です。反対の見方もセットで見てみましょう。</p>
+    <div class="ideas" id="ideas"></div>
+    <div class="sec"><h2>持っている株<small>タップでくわしく</small></h2></div>
+    <div class="card slist" id="stocklist"></div>
+    <div id="histbox"></div>
+    <p class="note">練習用なので1株から、手数料なしで売り買いできます（日本株は本当は100株単位が基本）。売り買いは11月10日の終値で行い、この端末の中だけに記録されます。米国株はドルの株価を、その日のドル円で円に直しています。</p>
+    <div id="sdetail"></div>
+  </section>
+
+  <section class="view" id="view-words">
+    <div class="sec"><h2>用語帳</h2></div>
+    <p class="lead-note">記事に出てきた言葉がここにたまっていきます。</p>
+    <div id="wordList" style="display:flex;flex-direction:column;gap:18px"></div>
+  </section>
+</div>
+
+<nav class="tabbar" aria-label="画面の切り替え"><div class="in">
+  <a href="#home" data-view="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 11 12 4l8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg>ホーム</a>
+  <a href="#articles" data-view="articles"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>記事</a>
+  <a href="#stocks" data-view="stocks"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17l5-5 4 3 7-8"/><path d="M15 7h5v5"/></svg>銘柄</a>
+  <a href="#words" data-view="words"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M5 5a2 2 0 0 1 2-2h12v16H7a2 2 0 0 0-2 2z"/><path d="M5 19V5"/></svg>用語</a>
+</div></nav>
+
+<div class="mini" id="mini">
+  <button type="button" class="mini-face" id="miniFace" aria-label="キャスターのひとこと"><span class="fstack" data-stack></span><span class="hit"></span><span class="dot" id="miniDot" hidden></span></button>
+  <div class="mini-bubble" id="miniBubble" role="status" aria-live="polite"><p id="miniText"></p><button type="button" class="go" data-cast="0">▶ 番組で聞く</button><button type="button" class="mx" id="miniX" aria-label="ふきだしを閉じる">×</button></div>
+</div>
+
+<div class="studio" id="studio" role="dialog" aria-modal="true" aria-label="朝のニュース番組">
+  <div class="beams"></div><div class="set"></div>
+  <div class="st-top"><span class="onair">ON AIR</span><span class="ttl">NEWSTOCK 朝の便</span><button type="button" class="x" id="stClose" aria-label="番組を閉じる">×</button></div>
+  <div class="st-bars" id="stBars"></div>
+  <div class="monitor night grain" id="stMon"></div>
+  <div class="anchor" role="img" aria-label="ニュースを読むキャスター"><span class="fstack" data-stack></span></div>
+  <div class="st-bottom" id="stBot">
+    <div class="lower"><span class="lt" id="stTag"></span><span class="lh" id="stHead"></span></div>
+    <div class="cap" id="stCap"><span class="who">キャスター</span><p class="cap-t" id="stText"></p><span class="nx">タップで次へ ▼</span></div>
+    <div class="st-ctrl"><button type="button" id="stPrev">◀ 前</button><button type="button" id="stPlay" aria-pressed="true">⏸ 止める</button><button type="button" id="stNext">次 ▶</button><button type="button" id="stVoice" aria-pressed="false">🔈 声で読む</button><button type="button" id="stVset" aria-label="声の設定">⚙ 声</button></div>
+    <div class="ticker"><span class="run" id="stTicker"></span></div>
+  </div>
+  <div class="vpanel" id="vpanel" hidden role="dialog" aria-label="声の設定"></div>
+</div>
+
+<div class="story grain" id="story" role="dialog" aria-modal="true" aria-label="今日のハイライト">
+  <div class="orb"></div>
+  <svg class="arcs" viewBox="0 0 400 800" preserveAspectRatio="none" aria-hidden="true"><path d="M-40 120 C 120 40, 300 260, 440 140"/><path d="M-30 690 C 80 560, 260 820, 430 600"/></svg>
+  <div class="bars" id="storyBars"></div>
+  <div class="top"><span><i></i>今日のハイライト</span><button type="button" class="x" id="storyClose" aria-label="ハイライトを閉じる">×</button></div>
+  <div id="storySlides"></div>
+  <button type="button" class="tap l" id="storyPrev" aria-label="前へ"></button>
+  <button type="button" class="tap r" id="storyNext" aria-label="次へ"></button>
+</div>
+
+<div class="sheet-bg" id="sheetBg"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+  <p class="sk">ことば</p>
+  <h3 id="sheetTitle"></h3>
+  <p id="sheetBody"></p>
+  <p class="ex" id="sheetEx"></p>
+  <button type="button" class="btn line close" data-close>とじる</button>
+</div>
+<div class="sheet" id="tsheet" role="dialog" aria-modal="true" aria-label="架空の売買"><div id="tradeBody"></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/*DATA*/
+
+/* ===== 売買の記録（この端末だけに保存） ===== */
+const TKEY = "kabu-trades-v1";
+let TRADES = [];
+try { TRADES = JSON.parse(localStorage.getItem(TKEY) || "[]"); if(!Array.isArray(TRADES)) TRADES = []; } catch(e) { TRADES = []; }
+function saveTrades(){ try { localStorage.setItem(TKEY, JSON.stringify(TRADES)); } catch(e) {} }
+
+/* ===== 計算 ===== */
+const yen = n => Math.round(n).toLocaleString("ja-JP") + "円";
+const yenPx = n => Number(n).toLocaleString("ja-JP",{maximumFractionDigits:1}) + "円";
+const LAST = DAY.dates.length - 1;
+TRADES.forEach(t => { if (!t.d) t.d = DAY.dates[LAST]; });
+const ALL = [...DAY.stocks, ...DAY.watch.map(w => ({...w, qty:0, notes:{}, why:""}))];
+const jpyAt = (s,i) => s.hist[i] == null ? null : s.hist[i] * (s.ccy === "USD" ? DAY.fxHist[i] : 1);
+const tIdx = t => { const k = DAY.dates.indexOf(t.d); return k < 0 ? LAST : k; };
+function portfolio(){
+  const rows = ALL.map(s => {
+    const base = s.qty || 0;
+    const mine = TRADES.filter(t => t.id === s.id);
+    const price = jpyAt(s, LAST);
+    /* 日ごとの「株の価値 − 売買で動いたお金」。売買した日に値段が飛ばない形にする */
+    let lastV = 0;
+    const series = DAY.dates.map((_,i) => {
+      let q = base, flow = 0;
+      mine.forEach(t => { if (tIdx(t) <= i){ q += t.q; flow += t.q * t.p; } });
+      const px = jpyAt(s,i);
+      if (px != null) lastV = px;
+      return q ? (px != null ? px : lastV) * q - flow : -flow;
+    });
+    let qty = base, cost = base ? jpyAt(s,0) * base : 0, realized = 0;
+    mine.forEach(t => {
+      if (t.q > 0){ qty += t.q; cost += t.q * t.p; }
+      else { const n = -t.q, c = qty ? cost * n / qty : 0; cost -= c; realized += n * t.p - c; qty -= n; }
+    });
+    const value = qty * price;
+    const prevNative = s.hist[LAST-1], cur = s.hist[LAST];
+    return {...s, base, series, qty, cost, value, pl: value - cost, realized, price, cur, buy: s.hist[0],
+      day: (base || mine.length) ? series[LAST] - series[LAST-1] : 0,
+      chg: prevNative != null ? (cur/prevNative - 1) * 100 : null,
+      traded: mine.length > 0};
+  });
+  const baseCost = rows.reduce((a,r) => a + (r.base ? jpyAt(r,0) * r.base : 0), 0);
+  const flow = TRADES.reduce((a,t) => a + t.q * t.p, 0);
+  const cash = DAY.startCash - baseCost - flow;
+  const value = rows.reduce((a,r) => a + r.value, 0);
+  const totalSeries = DAY.dates.map((_,i) => rows.reduce((a,r) => a + r.series[i], 0) + DAY.startCash - baseCost);
+  return {rows, cash, value, total: value + cash, day: rows.reduce((a,r) => a + r.day, 0), totalSeries};
+}
+const signed = n => (Math.round(n) > 0 ? "+" : Math.round(n) < 0 ? "−" : "±") + yen(Math.abs(n));
+const short = n => { const a=Math.abs(Math.round(n)); const s = Math.round(n)>0?"+":Math.round(n)<0?"−":"±"; return a>=10000 ? s+(a/10000).toFixed(1)+"万円" : s+a.toLocaleString("ja-JP")+"円"; };
+const flat = s => String(s).replace(/\n/g,"");
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const withTerms = s => esc(s).replace(/\{\{(\w+)\|([^}]+)\}\}/g, (_,id,label) => `<button type="button" class="term" data-term="${id}">${label}</button>`);
+const dirClass = d => d > 0 ? "up" : d < 0 ? "down" : "flat";
+const pct = v => (v > 0 ? "+" : v < 0 ? "−" : "±") + Math.abs(v).toFixed(1) + "%";
+const pctOf = (a,b) => b ? (a>=b?"+":"−") + Math.abs((a/b-1)*100).toFixed(1) + "%" : "";
+const native = s => s.ccy === "USD" ? `${Number(s.cur).toFixed(2)}ドル` : yenPx(s.cur);
+const ico = s => `<span class="ico ${s.ccy==="USD"?"us":""}" aria-hidden="true">${esc(s.name.slice(0,1))}</span>`;
+
+/* ===== グラフ ===== */
+function spark(v,w,h,color,fill){
+  const lo=Math.min(...v),hi=Math.max(...v),p=(hi-lo)*.15||1;
+  const X=i=>2+i*(w-4)/(v.length-1),Y=x=>3+(hi+p-x)/(hi-lo+2*p)*(h-6);
+  const d=v.map((x,i)=>(i?"L":"M")+X(i).toFixed(1)+" "+Y(x).toFixed(1)).join(" ");
+  const gid="g"+Math.random().toString(36).slice(2,8);
+  return `<svg class="sp" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true">`+(fill?`<defs><linearGradient id="${gid}" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="${color}" stop-opacity=".35"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></linearGradient></defs><path d="${d} L${X(v.length-1)} ${h} L${X(0)} ${h} Z" fill="url(#${gid})"/>`:"")+`<path d="${d}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg>`;
+}
+function lineChart(vals, base, notes){
+  const W=360,H=180,L=6,R=6,T=28,B=26, n=vals.length;
+  const lo=Math.min(...vals,base), hi=Math.max(...vals,base), pad=(hi-lo||1)*0.18;
+  const y0=lo-pad, y1=hi+pad;
+  const X=i=>L+i*(W-L-R)/(n-1), Y=v=>T+(y1-v)/(y1-y0)*(H-T-B);
+  const pts=vals.map((v,i)=>[X(i),Y(v)]);
+  const line=pts.map((p,i)=>(i?"L":"M")+p[0].toFixed(1)+" "+p[1].toFixed(1)).join(" ");
+  const area=line+` L${X(n-1).toFixed(1)} ${H-B} L${X(0).toFixed(1)} ${H-B} Z`;
+  const by=Y(base), gid="c"+Math.random().toString(36).slice(2,8);
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="日ごとの金額の推移">`;
+  s+=`<defs><linearGradient id="${gid}" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(--orange)" stop-opacity=".28"/><stop offset="1" stop-color="var(--blue)" stop-opacity="0"/></linearGradient></defs>`;
+  s+=`<line x1="${L}" x2="${W-R}" y1="${H-B}" y2="${H-B}" stroke="var(--line)"/>`;
+  s+=`<line x1="${L}" x2="${W-R}" y1="${by.toFixed(1)}" y2="${by.toFixed(1)}" stroke="var(--muted)" stroke-dasharray="4 4" opacity=".6"/>`;
+  s+=`<text class="ax" x="${W-R}" y="${(by-6).toFixed(1)}" text-anchor="end">最初の額 ${yen(base)}</text>`;
+  s+=`<path d="${area}" fill="url(#${gid})"/>`;
+  s+=`<path d="${line}" fill="none" stroke="var(--ink)" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  const boxes=[];
+  const hit=(x0,x1,y)=>boxes.some(q=>Math.abs(q.y-y)<15 && x0<q.x1+2 && x1>q.x0-2);
+  pts.forEach((p,i)=>{
+    const d=i?vals[i]-vals[i-1]:0, c=i?dirClass(Math.round(d)):"flat";
+    s+=`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${i===n-1?6:4.5}" fill="${i?`var(--${c==="up"?"up":c==="down"?"down":"muted"})`:"var(--card)"}" stroke="var(--ink)" stroke-width="${i?0:2}"/>`;
+    if(i){
+      const txt=short(d), w=txt.length*7.4+6;
+      const cx=Math.max(w/2+2, Math.min(W-w/2-2, p[0]));
+      const x0=cx-w/2, x1=cx+w/2;
+      let above=d>=0; if(!above && p[1]+20>H-B-4) above=true; if(above && p[1]-12<T-14) above=false;
+      const yOf=ab=>ab?p[1]-12:p[1]+20;
+      if(hit(x0,x1,yOf(above))) above=!above;
+      let ty=yOf(above);
+      if(hit(x0,x1,ty)) ty+= above?-15:15;
+      boxes.push({x0,x1,y:ty});
+      s+=`<text class="pl ${c}" x="${cx.toFixed(1)}" y="${ty.toFixed(1)}" text-anchor="middle">${txt}</text>`;
+    }
+    s+=`<text class="ax" x="${p[0].toFixed(1)}" y="${H-8}" text-anchor="${i===0?"start":i===n-1?"end":"middle"}">${DAY.dates[i]}${i===0?" 購入":""}</text>`;
+    if(notes) s+=`<circle class="hp" data-i="${i}" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="15"/>`;
+  });
+  return s+`</svg>`;
+}
+const chartBox = (vals, base, notes) => `<div class="chart" data-notes="${esc(JSON.stringify(notes||{}))}">${lineChart(vals, base, notes||{})}<p class="ptnote" aria-live="polite">グラフの点をタップすると、その日のニュースが出ます</p></div>`;
+const tlBox = (vals, notes) => `<details class="tlbox"><summary>日ごとのニュースを一覧で見る</summary>${timeline(vals, notes)}</details>`;
+function timeline(vals, notes){
+  const moves = vals.map((v,i)=>i?v-vals[i-1]:0);
+  let topI=1; moves.forEach((m,i)=>{ if(i && Math.abs(m)>Math.abs(moves[topI])) topI=i; });
+  return `<ol class="tl">${DAY.dates.map((d,i)=>{
+    if(!i) return `<li class="start"><span class="d">${d}</span><span class="t">${esc(notes[d]||"")}</span><span class="a">スタート</span></li>`;
+    const c=dirClass(Math.round(moves[i]));
+    return `<li class="${i===topI?"top":""}"><span class="d">${d}</span><span class="t">${esc(notes[d]||"")}</span><span class="a ${c}">${signed(moves[i])}${Math.abs(moves[i])>=10000?"！":""}</span></li>`;
+  }).reverse().join("")}</ol>`;
+}
+
+/* ===== 表示 ===== */
+const SIDE_LABEL = {buy:"買ってみる", sell:"売ってみる", wait:"値段を見る"};
+function render(){
+  const p = portfolio();
+  const byId = Object.fromEntries(p.rows.map(s=>[s.id,s]));
+  const relOf = a => a.stocks.reduce((s,id)=>s+byId[id].day,0);
+  const NA = DAY.articles.length;
+  document.getElementById("dateLabel").textContent = DAY.label.replace(" 朝の便","");
+
+  /* ホーム */
+  const dc = dirClass(Math.round(p.day));
+  const totCls = dirClass(Math.round(p.total - DAY.startCash));
+  document.getElementById("hero").innerHTML = `
+    <div class="orb"></div>
+    <div class="k">きのう、あなたの株は</div>
+    <div class="amt ${dc}">${signed(p.day)}</div>
+    <div class="sub">いまの資産 <b class="num">${yen(p.total)}</b>　スタートから <span class="num ${totCls}">${signed(p.total-DAY.startCash)}</span></div>
+    ${spark(p.totalSeries,600,64,"#f2875a",true)}
+    <div class="row"><span class="num">${DAY.dates[0]} → ${DAY.dates[LAST]}</span><button type="button" class="btn orange" data-story>▶ 今日のハイライト</button></div>`;
+  document.getElementById("mkt").innerHTML = DAY.market.map(m =>
+    `<div><span class="k">${m.k}</span><span class="v">${m.v}</span><span class="d ${m.dir>0?"up":m.dir<0?"down":"flat"}">${m.d}</span></div>`).join("");
+  document.getElementById("newsCount").innerHTML = `今日のニュース<small>${NA}本</small>`;
+  document.getElementById("hnews").innerHTML = DAY.articles.map((a,ai)=>{
+    const r = relOf(a);
+    const im = a.stocks.length ? `関係する株のきのうの動き <b class="${dirClass(Math.round(r))}">${short(r)}</b>` : `持ち株への直接の影響は なし`;
+    return `<button type="button" class="nc" data-go="articles:art-${ai}">
+      <span><span class="tag t-${a.tag}">${a.tag}</span></span>
+      <span class="h">${esc(flat(a.hook))}</span>
+      <span class="ti">${esc(a.short)}</span>
+      <span class="im">${im}</span>
+    </button>`;}).join("");
+  const mine = p.rows.filter(r => r.base || r.qty > 0);
+  document.getElementById("hstocks").innerHTML = mine.map(r=>{
+    const full = r.hist.every(v => v != null);
+    const v = r.base ? `${signed(r.day)}<small>きのうの動き</small>` : `${r.qty}株<small>買った株</small>`;
+    return `<button type="button" class="srow" data-go="stocks:${r.base?"s":"w"}-${r.id}">
+      ${ico(r)}
+      <span class="n">${r.name}<small>${r.country}・${r.area}系${r.qty!==r.base?`・${r.qty}株`:""}</small></span>
+      ${full ? spark(r.hist,56,24,r.chg>=0?"var(--up)":"var(--down)",false) : "<span></span>"}
+      <span class="v ${r.base?dirClass(Math.round(r.day)):""}">${v}</span>
+    </button>`;}).join("");
+  document.getElementById("howto").textContent = "試作版：データは11月11日朝の時点です。値動きを見せるため、11月4日の終値で買ったことにして、11月10日までの実際の終値で計算しています。マイクロソフトの11/4・11/5と関西電力の11/5の終値は、報道された上げ下げの率から計算した近い値です。INPEXの終値は夜間取引の報道から計算しました。本番では毎朝7時ごろにClaudeが記事と株価を更新します。投資のおすすめではありません。";
+
+  /* 記事 */
+  document.getElementById("articleList").innerHTML = DAY.articles.map((a,ai) => {
+    const r = relOf(a);
+    const watch = (a.watch||[]).map(id=>byId[id]);
+    const chips = a.stocks.map(id=>{const s=byId[id];return `<button type="button" class="ychip" data-go="stocks:s-${id}"><em>${s.area}系</em>${s.name}<b class="${dirClass(Math.round(s.day))}">${signed(s.day)}</b></button>`;}).join("")
+      + watch.map(s=>`<button type="button" class="ychip" data-go="stocks:w-${s.id}"><em>${s.area}系</em>${s.name}<b class="${dirClass(s.chg)}">${s.chg==null?native(s):pct(s.chg)}</b></button>`).join("");
+    return `
+    <article id="art-${ai}">
+      <div class="ahead"><span class="tag t-${a.tag}">${a.tag}</span><span class="hk">${esc(flat(a.hook))}</span><button type="button" class="btn line castbtn" data-cast="${ai+1}">▶ キャスターで聞く</button></div>
+      <h2>${esc(a.title)}</h2>
+      <div class="keynum"><b>${a.hero.num}</b><span>${a.hero.cap}</span></div>
+      <div class="keypts"><h3>この記事のポイント！</h3><ol>${a.heads.map((t,k)=>`<li><button type="button" data-goto="pt-${ai}-${k}"><span>${k+1}</span>${esc(t)}</button></li>`).join("")}</ol></div>
+      <ol class="points">${a.points.map((pt,k)=>`<li id="pt-${ai}-${k}"><h4><span>${k+1}</span>${esc(a.heads[k])}</h4><p>${withTerms(pt)}</p></li>`).join("")}</ol>
+      <div class="rel">
+        <div class="tot">${a.stocks.length ? `このニュースに関係する株の、きのうの動き <span class="num ${dirClass(Math.round(r))}">${signed(r)}</span>` : `あなたの持ち株には、直接の関係はありません`}</div>
+        <div class="chips">${chips}</div>
+        <p>${esc(a.mine)}</p>
+        ${a.stocks.length ? `<p class="relnote">※ニュースの効果そのものではなく、関係する株のきのうの値動きを足した数字です。1つの株が複数の記事に関係するときは、それぞれの記事に数えています。</p>` : ""}
+      </div>
+      <details class="more">
+        <summary>もう少しくわしく</summary>
+        <div class="flow">${a.more.flow.map((f,i)=>`${i?"<i>↓</i>":""}<div>${esc(f)}</div>`).join("")}</div>
+        ${a.more.text.map(t=>`<p>${esc(t)}</p>`).join("")}
+        <p class="tip">${esc(a.more.tip)}</p>
+      </details>
+      <div class="src">出典：${a.sources.map(([t,u])=>`<a href="${u}" target="_blank" rel="noopener">${esc(t)}</a>`).join("")}</div>
+    </article>`;}).join("");
+
+  /* 銘柄：まとめ */
+  const held = p.rows.filter(r => r.qty > 0);
+  document.getElementById("summary").innerHTML = `
+    <div class="orb"></div>
+    <h2>最初の100万円は、いま</h2>
+    <div class="journey"><span class="from num">${yen(DAY.startCash)} →</span><span class="to ${totCls}">${yen(p.total)}</span><span class="diff num ${totCls}">${signed(p.total-DAY.startCash)}（${pctOf(p.total,DAY.startCash)}）</span></div>
+    ${chartBox(p.totalSeries, DAY.startCash, DAY.events)}
+    ${tlBox(p.totalSeries, DAY.events)}
+    <table class="split">
+      <thead><tr><th>銘柄</th><th>株数</th><th>いま</th><th>損益</th></tr></thead>
+      <tbody>
+        ${held.map(r=>`<tr><td>${r.name}</td><td>${r.qty}株</td><td>${yen(r.value)}</td><td class="${dirClass(Math.round(r.pl))}">${signed(r.pl)}</td></tr>`).join("")}
+        <tr class="cash"><td>現金（すぐ使えるお金）</td><td></td><td>${yen(p.cash)}</td><td></td></tr>
+      </tbody>
+    </table>
+    <p class="cashnote">${p.cash < 30000 ? "現金はほとんど残っていません。新しく買いたいときは、先にどれかを売ってお金を作ります。" : "売って作った現金で、ほかの株を買うこともできます。"}</p>`;
+
+  /* 銘柄：今日のニュースから考える（ほかの株もここにまとめる） */
+  const KIND = {add:"買い足す", new:"新しく買う", sell:"売る", wait:"様子見"};
+  const ideaHtml = DAY.ideas.map(d => {
+    const s = byId[d.id];
+    const own = s.qty > 0 ? `${s.qty}株 持っています` : `持っていません`;
+    const tside = d.side === "sell" ? "sell" : "buy";
+    const k = d.side === "sell" ? "sell" : d.side === "wait" ? "wait" : (s.qty > 0 ? "add" : "new");
+    return `<div class="idea k-${k}" id="w-${d.id}">
+      <div class="top"><span class="kind">${KIND[k]}</span><span class="tag t-${d.tag}">${d.tag}のニュース</span><span class="stance ${d.side}">${d.stance}</span></div>
+      <h3>${s.name}<small>${own}・1株 ${native(s)}</small></h3>
+      <p>${esc(d.text)}</p>
+      <p class="other">${esc(d.other)}</p>
+      <div class="acts"><button type="button" class="btn line go" data-trade="${d.id}:${tside}">${SIDE_LABEL[d.side]}</button></div>
+    </div>`;}).join("");
+  const extra = p.rows.filter(r => !r.base && !DAY.ideas.some(d => d.id === r.id));
+  const extraHtml = extra.length ? `<p class="ideas-sub">ほかの株</p>` + extra.map(r => {
+    return `<div class="wcard" id="w-${r.id}">
+      ${ico(r)}
+      <div><div class="nm">${r.name}</div><div class="meta">${r.country}・${r.area}系｜${r.code}｜${r.what}</div></div>
+      <div class="px">${native(r)}${r.chg!=null?`<small class="${dirClass(r.chg)}">前日比 ${pct(r.chg)}</small>`:""}</div>
+      ${r.qty>0?`<div class="own">${r.qty}株 持っています（いま ${yen(r.value)}、<span class="${dirClass(Math.round(r.pl))}">${signed(r.pl)}</span>）</div>`:""}
+      <div class="acts">${r.qty>0?`<button type="button" class="btn line" data-trade="${r.id}:sell">売る</button>`:""}<button type="button" class="btn blue" data-trade="${r.id}:buy">買ってみる</button></div>
+    </div>`;}).join("") : "";
+  document.getElementById("ideas").innerHTML = ideaHtml + extraHtml;
+
+  /* 銘柄：持っている株（一覧） */
+  document.getElementById("stocklist").innerHTML = p.rows.filter(r => r.base).map(r => {
+    const pc = dirClass(Math.round(r.pl));
+    const full = r.series.every(v => v != null);
+    return `<button type="button" class="srow" data-detail="${r.id}">
+      ${ico(r)}
+      <span class="n">${r.name}<small>${r.qty}株・${r.area}系</small></span>
+      ${full ? spark(r.series,56,24,r.pl>=0?"var(--up)":"var(--down)",false) : "<span></span>"}
+      <span class="v">${yen(r.value)}<span class="pl ${pc}">${signed(r.pl)}</span></span>
+    </button>`;}).join("");
+
+  /* 銘柄：くわしく（1銘柄） */
+  const sd = document.getElementById("sdetail");
+  const dr = SD && p.rows.find(r => r.id === SD && r.base);
+  if (dr){
+    const r = dr;
+    const buy = r.ccy==="USD" ? `${r.buy.toFixed(2)}ドル` : yenPx(r.buy);
+    const pc = dirClass(Math.round(r.pl));
+    const changed = r.qty !== r.base;
+    sd.innerHTML = `<button type="button" class="back" data-back>← 持っている株の一覧へ</button>
+    <div class="scard" id="s-${r.id}">
+      ${ico(r)}
+      <div class="nm">${r.name}</div>
+      <div class="px">${native(r)}</div>
+      <div class="meta">${r.country}・${r.area}系｜${r.code}｜${r.what}</div>
+      <div class="chg ${dirClass(r.chg)}">前日比 ${pct(r.chg)}</div>
+      <div class="inv"><span class="from num">${yen(r.cost)} →</span><span class="to ${pc}">${yen(r.value)}</span><span class="diff num ${pc}">${signed(r.pl)}（${pctOf(r.value,r.cost)}）</span></div>
+      <div class="hold"><span>${r.qty}株${changed?`（はじめは${r.base}株）`:""}</span><span>買値 ${buy}（${DAY.dates[0]}）</span><span>きのうの動き ${signed(r.day)}</span>${r.realized?`<span>売って確定した分 ${signed(r.realized)}</span>`:""}</div>
+      ${chartBox(r.series, r.series[0], r.notes)}
+      ${tlBox(r.series, r.notes)}
+      <p class="why"><b>いまの注目</b>　${esc(r.why)}</p>
+      <div class="acts"><button type="button" class="btn line" data-trade="${r.id}:sell" ${r.qty?"":"disabled"}>売る</button><button type="button" class="btn blue" data-trade="${r.id}:buy">買う</button></div>
+    </div>`;
+  } else sd.innerHTML = "";
+
+  /* 銘柄：売買のきろく */
+  document.getElementById("histbox").innerHTML = TRADES.length ? `<div class="hist"><h3>売買のきろく</h3><ol>${TRADES.slice().reverse().map(t=>{
+      const s = byId[t.id]; const b = t.q > 0;
+      return `<li><span class="s ${b?"b":"s"}">${b?"買い":"売り"}</span><span>${s?s.name:t.id} ${Math.abs(t.q)}株<small style="color:var(--muted)">　${t.d||""}</small></span><span class="r">${yen(Math.abs(t.q)*t.p)}</span></li>`;}).join("")}</ol>
+      <button type="button" class="btn line reset" id="resetTrades">売買をぜんぶ取り消す</button></div>` : "";
+
+  /* 用語 */
+  const groups = WORD_ORDER.map(g => ({g, items:Object.entries(WORDS).filter(([,w])=>w.g===g)})).filter(x=>x.items.length);
+  document.getElementById("wordList").innerHTML = groups.map(({g,items}) => `
+    <div class="wgroup"><h2>${g}<span>${items.length}語</span></h2><div class="wlist">${items.map(([,w])=>`
+      <div class="witem"><b>${w.t}</b><p>${w.d}</p><p class="ex">${w.ex}</p></div>`).join("")}</div></div>`).join("");
+}
+
+/* ===== 画面切り替え（#home / #articles / #stocks / #words） ===== */
+const VIEWS = ["home","articles","stocks","words"];
+let pendingTarget = null;
+const SCROLLS = {}; let curKey = null, SD = null;
+const hv = () => (location.hash||"#home").slice(1).split("/")[0];
+function show(){
+  const raw = (location.hash||"#home").slice(1);
+  const [vn, sub] = raw.split("/");
+  const view = VIEWS.includes(vn) ? vn : "home";
+  const key = view + (view === "stocks" && sub ? "/d" : "");
+  if (curKey && curKey !== key) SCROLLS[curKey] = window.scrollY;
+  const changed = curKey !== key; curKey = key;
+  const sdNew = view === "stocks" && sub ? decodeURIComponent(sub) : null;
+  if (sdNew !== SD){ SD = sdNew; render(); }
+  document.getElementById("view-stocks").classList.toggle("detail-on", !!SD && !!document.getElementById("s-"+SD));
+  document.querySelectorAll("section.view").forEach(s=>s.classList.toggle("on", s.id==="view-"+view));
+  document.querySelectorAll(".tabbar a").forEach(a=>{ if(a.dataset.view===view) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current"); });
+  const el = pendingTarget && document.getElementById(pendingTarget); pendingTarget = null;
+  if (el) el.scrollIntoView({block:"start"}); else if (changed && key !== "stocks/d" && SCROLLS[key] != null) window.scrollTo(0, SCROLLS[key]); else window.scrollTo(0,0);
+}
+function go(view, target){
+  if (view === "stocks" && target && target.startsWith("s-")){ location.hash = "#stocks/" + target.slice(2); return; }
+  pendingTarget = target || null;
+  if (location.hash === "#"+view) show(); else location.hash = "#"+view;
+}
+window.addEventListener("hashchange", show);
+
+/* ===== シート ===== */
+const bg = document.getElementById("sheetBg");
+function openSheetEl(el){ document.querySelectorAll(".sheet.open").forEach(s=>s.classList.remove("open")); el.classList.add("open"); bg.classList.add("open"); }
+function closeSheet(){ document.querySelectorAll(".sheet.open").forEach(s=>s.classList.remove("open")); bg.classList.remove("open"); }
+function openWord(id){
+  const w = WORDS[id]; if(!w) return;
+  document.getElementById("sheetTitle").textContent = w.t;
+  document.getElementById("sheetBody").textContent = w.d;
+  document.getElementById("sheetEx").textContent = w.ex;
+  openSheetEl(document.getElementById("sheet"));
+}
+bg.addEventListener("click", closeSheet);
+
+/* ===== 架空の売買 ===== */
+let T = {id:null, side:"buy", q:1};
+function tradeState(){
+  const p = portfolio(); const r = p.rows.find(x => x.id === T.id);
+  const max = T.side === "buy" ? Math.floor(p.cash / r.price + 1e-9) : r.qty;
+  return {p, r, max};
+}
+function tradeCalc(){
+  const {p, r, max} = tradeState();
+  T.q = Math.max(1, Math.min(T.q, Math.max(1, max)));
+  const amt = T.q * r.price, buy = T.side === "buy";
+  const ok = max >= 1 && T.q <= max;
+  const reason = buy ? (max < 1 ? "現金が足りません。先にほかの株を売ると買えます" : "") : (r.qty < 1 ? "この株は持っていません" : "");
+  return {p, r, max, amt, buy, ok, reason};
+}
+/* 数字だけを書きかえる（入力欄やボタンは作りなおさない＝1回目のタップが消えない） */
+function refreshTrade(){
+  const {p, r, max, amt, buy, ok, reason} = tradeCalc();
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  set("tAmt", yen(amt)); set("tCash", yen(p.cash + (buy?-amt:amt))); set("tQty", (r.qty + (buy?T.q:-T.q)) + "株");
+  set("tMaxN", Math.max(0,max)); set("twarn", reason);
+  const go = document.getElementById("tgo"); go.textContent = `${T.q}株を${buy?"買う":"売る"}`; go.disabled = !ok;
+  document.getElementById("twarn").hidden = !reason;
+}
+function drawTrade(){
+  const {p, r, max, amt, buy, ok, reason} = tradeCalc();
+  const idea = DAY.ideas.find(d => d.id === r.id);
+  const fx = r.ccy === "USD" ? `（${r.cur.toFixed(2)}ドル × ${DAY.fx}円）` : "";
+  document.getElementById("tradeBody").innerHTML = `
+    <p class="sk">架空の売買（練習）</p>
+    <h3>${r.name}<small>${r.code}</small></h3>
+    <div class="tpx">1株 <b>${yenPx(r.price)}</b>${fx}</div>
+    <div class="seg"><button type="button" data-tside="buy" aria-pressed="${buy}">買う</button><button type="button" data-tside="sell" aria-pressed="${!buy}">売る</button></div>
+    <div class="qty"><button type="button" data-tq="-1" aria-label="1株へらす">−</button><input id="tq" type="number" inputmode="numeric" min="1" value="${T.q}" aria-label="株数"><span>株</span><button type="button" data-tq="1" aria-label="1株ふやす">＋</button></div>
+    <div class="tmax">${buy?"いまの現金で":"持っている株で"}最大 <span id="tMaxN">${Math.max(0,max)}</span>株 <button type="button" data-tq="max">最大にする</button></div>
+    <dl class="tsum">
+      <div><dt>${buy?"払うお金":"受け取るお金"}</dt><dd id="tAmt">${yen(amt)}</dd></div>
+      <div><dt>売買のあとの現金</dt><dd id="tCash">${yen(p.cash + (buy?-amt:amt))}</dd></div>
+      <div><dt>売買のあとの株数</dt><dd id="tQty">${r.qty + (buy?T.q:-T.q)}株</dd></div>
+    </dl>
+    ${idea ? `<div class="thint"><p><b>ヒント　${esc(idea.stance)}</b>${esc(idea.text)}</p><p class="oth"><b>いっぽうで</b>${esc(idea.other)}</p></div>` : ""}
+    <button type="button" class="btn ${buy?"blue":"orange"} tgo" id="tgo" ${ok?"":"disabled"}>${T.q}株を${buy?"買う":"売る"}</button>
+    <p class="twarn" id="twarn" ${reason?"":"hidden"}>${reason}</p>
+    <p class="tnote">練習用：手数料なし・1株から・${DAY.dates[LAST]}の終値で売買します</p>
+    <button type="button" class="btn line close" data-close style="display:block;margin:12px auto 0">とじる</button>`;
+}
+function openTrade(id, side){ T = {id, side: side || "buy", q:1}; drawTrade(); openSheetEl(document.getElementById("tsheet")); }
+document.getElementById("tradeBody").addEventListener("input", e => {
+  if (e.target.id === "tq"){ const n = parseInt(e.target.value,10); if (n >= 1){ T.q = n; refreshTrade(); } }
+});
+document.getElementById("tradeBody").addEventListener("change", e => {
+  if (e.target.id === "tq"){ T.q = Math.max(1, parseInt(e.target.value,10) || 1); refreshTrade(); e.target.value = T.q; }
+});
+let toastTimer = null;
+function toast(msg){ const t = document.getElementById("toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(toastTimer); toastTimer = setTimeout(()=>t.classList.remove("on"), 2600); }
+function doTrade(){
+  const {r, max} = tradeState(); if (T.q > max || max < 1) return;
+  const buy = T.side === "buy";
+  TRADES.push({id:r.id, q: buy ? T.q : -T.q, p: r.price, t: Date.now(), d: DAY.dates[LAST]});
+  saveTrades(); closeSheet(); render();
+  toast(`${r.name}を${T.q}株${buy?"買いました":"売りました"}（架空）`);
+}
+let resetArmed = false;
+
+/* ===== クリック ===== */
+document.addEventListener("click", e => {
+  const t = e.target.closest(".term"); if (t){ openWord(t.dataset.term); return; }
+  if (e.target.closest("[data-close]")){ closeSheet(); return; }
+  const tr = e.target.closest("[data-trade]"); if (tr){ const [id,side]=tr.dataset.trade.split(":"); openTrade(id, side); return; }
+  const dt = e.target.closest("[data-detail]"); if (dt){ location.hash = "#stocks/" + dt.dataset.detail; return; }
+  if (e.target.closest("[data-back]")){ if (history.length > 1 && location.hash.includes("/")) history.back(); else location.hash = "#stocks"; return; }
+  const hp = e.target.closest(".hp"); if (hp){
+    const box = hp.closest(".chart"), i = +hp.dataset.i;
+    let notes = {}; try { notes = JSON.parse(box.dataset.notes || "{}"); } catch(_){}
+    const d = DAY.dates[i], note = notes[d];
+    box.querySelectorAll(".hp.sel").forEach(x => x.classList.remove("sel")); hp.classList.add("sel");
+    const pn = box.querySelector(".ptnote"); pn.classList.add("on");
+    pn.innerHTML = `<b>${d}</b>${note ? esc(note) : "この日のニュースの記録はありません"}`;
+    window.__phrasify && window.__phrasify(pn);
+    return;
+  }
+  const ts = e.target.closest("[data-tside]"); if (ts){ T.side = ts.dataset.tside; drawTrade(); return; }
+  const tq = e.target.closest("[data-tq]"); if (tq){ const v=tq.dataset.tq; T.q = v==="max" ? tradeState().max : T.q + (+v); refreshTrade(); const inp = document.getElementById("tq"); if (inp) inp.value = T.q; return; }
+  if (e.target.closest("#tgo")){ doTrade(); return; }
+  const rs = e.target.closest("#resetTrades");
+  if (rs){ if(!resetArmed){ resetArmed = true; rs.textContent = "もう一度押すと取り消します"; setTimeout(()=>{ resetArmed=false; if(document.body.contains(rs)) rs.textContent="売買をぜんぶ取り消す"; }, 4000); }
+           else { resetArmed = false; TRADES = []; saveTrades(); render(); toast("売買をぜんぶ取り消しました"); } return; }
+  const g = e.target.closest("[data-goto]");
+  if (g){ const el=document.getElementById(g.dataset.goto); if(el) el.scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth", block:"start"}); return; }
+  const j = e.target.closest("[data-go]"); if (j){ const [v,id]=j.dataset.go.split(":"); go(v,id); return; }
+  const cs = e.target.closest("[data-cast]"); if (cs){ openCast(+cs.dataset.cast); return; }
+  const s = e.target.closest("[data-story]"); if (s){ openStory(); }
+});
+
+/* ===== 今日のハイライト（1枚3秒ほどで自動に切り替え） ===== */
+const story = document.getElementById("story");
+let sIdx = 0, sRaf = null, sStart = 0, sDur = [];
+const A = (html, d) => html.replace(/^<(\w+)( class="([^"]*)")?/, (m,tag,_c,cls)=>`<${tag} class="a ${cls||""}" style="--d:${d}s"`);
+function buildStory(){
+  const p = portfolio();
+  const byId = Object.fromEntries(p.rows.map(s=>[s.id,s]));
+  const dc = dirClass(Math.round(p.day));
+  const NA = DAY.articles.length;
+  const S = [];
+  S.push({dur:3500, html:
+    A(`<p class="eyebrow">${DAY.label.replace(" 朝の便","")}</p>`,0)+
+    A(`<p class="lead">きのう、あなたの株は…</p>`,.15)+
+    A(`<p class="huge" data-count="${Math.round(p.day)}">${signed(0)}</p>`,.45)+
+    A(`<span class="sbadge ${dc}">${p.day>0?"↑ アップ！":p.day<0?"↓ ダウン…":"そのまま"}</span>`,1.3)});
+  S.push({dur:3400, html:
+    A(`<p class="lead">今日のニュースは</p>`,0)+
+    A(`<p class="huge">${NA}つ</p>`,.2)+
+    `<ul class="three">${DAY.articles.map((a,i)=>A(`<li><em>${a.tag}</em>${esc(a.short)}</li>`,.6+i*.22)).join("")}</ul>`});
+  DAY.articles.forEach((a,i)=>{
+    const r = a.stocks.reduce((s,id)=>s+byId[id].day,0);
+    const imp = a.stocks.length ? `関係する株のきのうの動き<b class="${dirClass(Math.round(r))}">${short(r)}</b>` : `持ち株には<b class="flat">関係なし</b>`;
+    S.push({dur:3200, html:
+      A(`<span class="ntag">ニュース ${i+1}／${NA}・${a.tag}</span>`,0)+
+      A(`<p class="hook">${a.hook.split("\n").map(l=>`<mark>${esc(l)}</mark>`).join("")}</p>`,.15)+
+      A(`<p class="stitle">${esc(a.short)}</p>`,.6)+
+      A(`<span class="simp">${imp}</span>`,1.0)+
+      (i===NA-1 ? A(`<span class="btn line go end">記事をじっくり読む</span>`,1.4) : "")});
+  });
+  document.getElementById("storySlides").innerHTML = S.map(s=>`<section class="slide">${s.html}</section>`).join("");
+  document.getElementById("storyBars").innerHTML = S.map(()=>`<i><b></b></i>`).join("");
+  sDur = S.map(s=>s.dur);
+}
+function countUp(el){
+  const to = +el.dataset.count, t0 = performance.now(), dur = 900, delay = 450;
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduce){ el.textContent = signed(to); return; }
+  const step = now => {
+    const t = Math.min(1, Math.max(0, (now - t0 - delay) / dur));
+    el.textContent = signed(to * (1 - Math.pow(1 - t, 3)));
+    if (t < 1 && story.classList.contains("open")) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+function storyShow(i){
+  const slides = story.querySelectorAll(".slide"), bars = story.querySelectorAll(".bars b");
+  if (i >= slides.length){ closeStory(true); return; }
+  sIdx = Math.max(0, i);
+  slides.forEach((s,k)=>{ s.classList.remove("on"); if(k===sIdx){ void s.offsetWidth; s.classList.add("on"); } });
+  bars.forEach((b,k)=>{ b.style.width = k<sIdx ? "100%" : "0"; });
+  const c = slides[sIdx].querySelector("[data-count]"); if (c) countUp(c);
+  cancelAnimationFrame(sRaf); sStart = performance.now();
+  const tick = now => {
+    const t = Math.min(1, (now - sStart) / sDur[sIdx]);
+    bars[sIdx].style.width = (t*100) + "%";
+    if (t >= 1) storyShow(sIdx + 1); else sRaf = requestAnimationFrame(tick);
+  };
+  sRaf = requestAnimationFrame(tick);
+}
+function openStory(){ buildStory(); story.classList.add("open"); document.body.style.overflow="hidden"; storyShow(0); }
+function closeStory(toArticles){
+  cancelAnimationFrame(sRaf); story.classList.remove("open"); document.body.style.overflow="";
+  try { localStorage.setItem("highlight-seen", DAY.date); } catch(e) {}
+  if (toArticles) go("articles");
+}
+document.getElementById("storyNext").addEventListener("click", ()=>storyShow(sIdx+1));
+document.getElementById("storyPrev").addEventListener("click", ()=>storyShow(sIdx-1));
+document.getElementById("storyClose").addEventListener("click", ()=>closeStory(false));
+document.addEventListener("keydown", e => {
+  if (e.key==="Escape"){ closeSheet(); if (story.classList.contains("open")) closeStory(false); }
+  if (!story.classList.contains("open")) return;
+  if (e.key==="ArrowRight") storyShow(sIdx+1);
+  if (e.key==="ArrowLeft") storyShow(sIdx-1);
+});
+
+/* ===== 日本語の文節ごとに改行位置を入れる（1〜2文字だけ次の行に落ちるのを防ぐ） ===== */
+(function(){
+  const seg = (typeof Intl!=="undefined" && Intl.Segmenter) ? new Intl.Segmenter("ja",{granularity:"word"}) : null;
+  const done = new WeakSet();
+  const JP = /[぀-ヿ㐀-鿿]/;
+  const NB = /[0-9０-９！？!?]/;
+  const KANA_TAIL = /^[぀-ゟ]{1,3}$/;
+  const PUNCT = /^[、。，．！？!?）」』】〉》\s・…ー〜%％円株]+$/;
+  function chunks(t){
+    const out=[]; let open="";
+    for(let {segment} of seg.segment(t)){
+      if(/^[「『（(【〈《“]+$/.test(segment)){ open+=segment; continue; }
+      if(open){ segment=open+segment; open=""; out.push(segment); continue; }
+      const prev=out[out.length-1];
+      if(prev!==undefined && (KANA_TAIL.test(segment)||PUNCT.test(segment)||(/[0-9０-９兆億万,.]$/.test(prev)&&/^[0-9０-９,.]/.test(segment))||(/[0-9０-９]$/.test(prev)&&/^[兆億万千百円%％本つ株人日月年回件社枚個倍割分秒時歳位種]/.test(segment))||(/[+−±\-]$/.test(prev)&&/^[0-9０-９]/.test(segment)))) out[out.length-1]+=segment;
+      else out.push(segment);
+    }
+    if(open) out.push(open);
+    /* 「短いカッコ」はひとかたまりにする */
+    for(let i=0;i<out.length;i++){
+      if(/^[「『（(【“]/.test(out[i]) && !/[」』）)】”]/.test(out[i])){
+        let j=i, acc=out[i];
+        while(j+1<out.length && acc.length<14 && !/[」』）)】”]/.test(acc)){ j++; acc+=out[j]; }
+        if(/[」』）)】”]/.test(acc) && acc.length<=14){ out.splice(i, j-i+1, acc); }
+      }
+    }
+    const m=[];
+    for(const c of out){ if(m.length && c.length<=1 && JP.test(c)) m[m.length-1]+=c; else m.push(c); }
+    return m;
+  }
+  function fix(node){
+    const v=node.nodeValue;
+    if(done.has(node)||v.length<6||!JP.test(v)) return;
+    const par=node.parentNode; if(!par||/^(SCRIPT|STYLE|TEXTAREA|TITLE|OPTION)$/.test(par.nodeName)||(par.closest&&par.closest("svg,.num,.huge,.cap-t,.nb,.slide .hook"))) return;
+    const parts=chunks(v); if(parts.length<2){done.add(node);return;}
+    const f=document.createDocumentFragment();
+    parts.forEach((c,i)=>{
+      const tn=document.createTextNode(c); done.add(tn);
+      if(NB.test(c) && c.length<=18){ const sp=document.createElement("bdi"); sp.className="nb"; sp.appendChild(tn); f.appendChild(sp); }
+      else f.appendChild(tn);
+      if(i<parts.length-1) f.appendChild(document.createElement("wbr"));
+    });
+    const dsp = getComputedStyle(par).display;
+    if (/flex|grid/.test(dsp)){ const w = document.createElement("bdi"); w.appendChild(f); par.replaceChild(w, node); }
+    else par.replaceChild(f,node);
+  }
+  function walk(root){
+    if(!seg||!root) return;
+    if(root.nodeType===3){fix(root);return;}
+    if(root.nodeType!==1) return;
+    const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT),list=[];
+    while(w.nextNode()) list.push(w.currentNode);
+    list.forEach(fix);
+  }
+  new MutationObserver(ms=>{ms.forEach(m=>m.addedNodes.forEach(walk));}).observe(document.body,{childList:true,subtree:true});
+  window.__phrasify = walk;
+  window.__chunks = t => seg ? chunks(t) : [t];
+})();
+
+/* ===== 1〜2文字だけの行（孤立行）を、文字間と文字サイズを少し縮めて防ぐ ===== */
+(function(){
+  const SEL = "p,h2,h3,li,dd,summary,.h,.ti,.hk,.im,.stitle,.lead,.cap-t,.why,.vnote,.vhow,.relnote,.ptnote,.m-cap,.m-head small,.n,.tpx,.thint,.keynum span,.ntag,.tnote,.twarn,li>button,.ychip,.castcard small";
+  const rg = document.createRange();
+  function textNodes(el){
+    const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), a = [];
+    while (w.nextNode()){ const n = w.currentNode; if (!(n.parentNode.closest && n.parentNode.closest("svg"))) a.push(n); }
+    return a;
+  }
+  function topOf(n, i){
+    rg.setStart(n, i); rg.setEnd(n, i + 1);
+    const r = rg.getClientRects()[0];
+    return r && r.width > .5 ? r.top : null;
+  }
+  const tolOf = el => Math.max(4, parseFloat(getComputedStyle(el).fontSize) * .45);
+  function tail(el){
+    const ns = textNodes(el), tol = tolOf(el); let top0 = null, cnt = 0;
+    for (let k = ns.length - 1; k >= 0; k--){
+      const v = ns[k].nodeValue;
+      for (let i = v.length - 1; i >= 0; i--){
+        if (/\s/.test(v[i])) continue;
+        const t = topOf(ns[k], i); if (t == null) continue;
+        if (top0 == null) top0 = t;
+        if (Math.abs(t - top0) > tol) return {cnt, multi:true};
+        cnt++;
+      }
+    }
+    return {cnt, multi:false};
+  }
+  function lineCount(el){
+    const tops = [], tol = tolOf(el);
+    for (const n of textNodes(el)){
+      const v = n.nodeValue;
+      for (let i = 0; i < v.length; i++){
+        if (/\s/.test(v[i])) continue;
+        const t = topOf(n, i); if (t == null) continue;
+        if (!tops.some(x => Math.abs(x - t) <= tol)) tops.push(t);
+      }
+    }
+    return tops.length;
+  }
+  const STEPS = [[-.01,1],[-.02,1],[-.03,1],[-.04,1],[-.04,.97],[-.05,.94],[-.06,.91]];
+  function fit(el){
+    if (el.dataset.fit){ el.style.fontSize = ""; el.style.letterSpacing = ""; delete el.dataset.fit; }
+    const t = tail(el);
+    if (!(t.multi && t.cnt <= 2)) return;
+    const n0 = lineCount(el), cs = getComputedStyle(el);
+    const fs = parseFloat(cs.fontSize), ls0 = cs.letterSpacing === "normal" ? 0 : parseFloat(cs.letterSpacing) || 0;
+    for (const [d, sc] of STEPS){
+      el.style.fontSize = (fs * sc) + "px";
+      el.style.letterSpacing = (ls0 + d * fs * sc) + "px";
+      const n = lineCount(el);
+      if (n < n0){ const tt = tail(el); if (n === 1 || tt.cnt > 2){ el.dataset.fit = "1"; return; } }
+    }
+    el.style.fontSize = ""; el.style.letterSpacing = "";
+  }
+  function fitStory(){
+    document.querySelectorAll(".slide.on .hook").forEach(p => {
+      p.style.fontSize = "";
+      const marks = [...p.querySelectorAll("mark")], base = parseFloat(getComputedStyle(p).fontSize), avail = p.clientWidth;
+      if (!marks.length || !avail) return;
+      marks.forEach(m => m.style.display = "inline-block");
+      const need = Math.max(...marks.map(m => m.getBoundingClientRect().width));
+      marks.forEach(m => m.style.display = "");
+      if (need > avail) p.style.fontSize = Math.max(22, base * avail / need - .5) + "px";
+    });
+  }
+  function run(){
+    fitStory();
+    document.querySelectorAll(SEL).forEach(el => {
+      if (!el.getClientRects().length || el.querySelector(SEL)) return;
+      if (el.closest("svg,.num,.huge")) return;
+      fit(el);
+    });
+  }
+  let tm = null;
+  window.__fit = () => { clearTimeout(tm); tm = setTimeout(() => requestAnimationFrame(run), 70); };
+  new MutationObserver(ms => { if (ms.some(m => m.type === "childList" || !(m.target.closest && m.target.closest(".mini,.tabbar")))) window.__fit(); }).observe(document.body, {childList:true, subtree:true, attributes:true, attributeFilter:["class","hidden"]});
+  window.addEventListener("resize", window.__fit);
+  window.addEventListener("hashchange", window.__fit);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(window.__fit);
+  window.__fitNow = run; window.__fitDbg = {tail, lineCount, fit};
+  window.__fit();
+})();
+
+
+/* ===== ニュース番組（キャスターが読む） ===== */
+const studio = document.getElementById("studio");
+const ST = {lines:[], i:0, typing:false, spoken:true, playing:true, voice:false, tTimer:null, nTimer:null, groups:[]};
+const plain = t => String(t).replace(/\{\{\w+\|([^}]+)\}\}/g, "$1");
+const firstSentence = t => { const x = plain(t); const k = x.indexOf("。"); return k >= 0 ? x.slice(0, k+1) : x; };
+function buildCast(){
+  const p = portfolio();
+  const byId = Object.fromEntries(p.rows.map(s=>[s.id,s]));
+  const NA = DAY.articles.length, day = DAY.label.replace(" 朝の便","");
+  const L = [];
+  L.push({g:0, kind:"open", text:`おはようございます。${day.replace(/（.）/,"")}、朝のニュースです。`});
+  L.push({g:0, kind:"day", text:`まずは、あなたの株から。きのうのニュースで、あなたの株は ${signed(p.day)} でした。`, val:p.day});
+  L.push({g:0, kind:"list", text:`今日のニュースは${NA}本です。`});
+  DAY.articles.forEach((a,ai)=>{
+    const lead = ai===0 ? "最初は" : ai===NA-1 ? "最後は" : "続いては";
+    L.push({g:ai+1, a:ai, kind:"title", text:`${lead}${a.tag}のニュースです。${a.short}。`});
+    a.points.forEach((pt,k)=> L.push({g:ai+1, a:ai, kind:"point", k, text:firstSentence(pt)}));
+    const r = a.stocks.reduce((s,id)=>s+byId[id].day,0);
+    L.push({g:ai+1, a:ai, kind:"impact", val:r, text: a.stocks.length ? `このニュースに関係する株は、きのう、合わせて ${signed(r)} 動きました。` : `あなたの持ち株には、直接の関係はありません。`});
+  });
+  L.push({g:NA+1, kind:"close", text:"以上、今朝のニュースでした。くわしくは、記事をじっくり読んでみてくださいね。"});
+  ST.lines = L; ST.groups = NA + 2;
+  document.getElementById("stBars").innerHTML = Array.from({length:ST.groups},()=>"<i><b></b></i>").join("");
+  document.getElementById("stTicker").innerHTML = DAY.market.map(m=>`<span>${m.k} ${m.v} <b class="${m.dir>0?"up":m.dir<0?"down":""}">${m.d}</b></span>`).join("") +
+    p.rows.filter(r=>r.base).map(r=>`<span>${r.name} ${native(r)} <b class="${dirClass(r.chg)}">${pct(r.chg)}</b></span>`).join("");
+}
+function monitorHTML(l){
+  const p = portfolio(), NA = DAY.articles.length;
+  if (l.kind === "open") return `<div class="orb"></div><span class="m-tag">${DAY.label}</span><div class="m-num">朝のニュース</div><div class="m-cap">ニュース${NA}本と、あなたの株</div>`;
+  if (l.kind === "day") return `<div class="orb"></div><span class="m-tag">あなたの株</span><div class="m-num ${dirClass(Math.round(l.val))}">${signed(l.val)}</div><div class="m-cap">きのうの動き・いまの資産 ${yen(p.total)}</div>`;
+  if (l.kind === "list") return `<div class="orb"></div><span class="m-tag">今日のニュース</span><div class="m-num">${NA}本</div><ul class="m-list">${DAY.articles.map(a=>`<li><em>${a.tag}</em>${esc(a.short)}</li>`).join("")}</ul>`;
+  if (l.kind === "close") return `<div class="orb"></div><span class="m-tag">おしまい</span><div class="m-num">また明日</div><div class="m-cap">記事で、ポイントをじっくり読もう</div>`;
+  const a = DAY.articles[l.a];
+  const head = l.kind === "point" ? `<div class="m-head"><small>ポイント ${l.k+1}／${a.heads.length}</small>${esc(a.heads[l.k])}</div>`
+    : l.kind === "impact" ? `<div class="m-head"><small>あなたの株への影響</small>${a.stocks.length ? `<span class="${dirClass(Math.round(l.val))}">${signed(l.val)}</span>` : "直接の関係なし"}</div>`
+    : `<div class="m-head"><small>${esc(flat(a.hook))}</small></div>`;
+  return `<div class="orb"></div><span class="m-tag">ニュース ${l.a+1}／${NA}・${a.tag}</span><div class="m-num">${a.hero.num}</div><div class="m-cap">${a.hero.cap}</div>${head}`;
+}
+function speakable(t){
+  return String(t)
+    .replace(/(\d)万0,?(\d)/g, "$1万$2")
+    .replace(/(\d+)〜(\d+)月/g, "$1月から$2月")
+    .replace(/[（(][^）)]{1,12}[）)]/g, "")
+    .replace(/−/g, "マイナス").replace(/\+/g, "プラス").replace(/±/g, "")
+    .replace(/[%％]/g, "パーセント")
+    .replace(/[「」『』]/g, "")
+    .replace(/。/g, "。 ");
+}
+function stTalking(){ studio.classList.toggle("talking", ST.typing || (ST.voice && !ST.spoken)); }
+function stClear(){ clearInterval(ST.tTimer); clearTimeout(ST.nTimer); }
+function stShow(i){
+  if (i < 0) i = 0;
+  if (i >= ST.lines.length){ stEnd(); return; }
+  stClear(); ST.i = i;
+  const l = ST.lines[i], prev = ST.lines[i-1];
+  const mon = document.getElementById("stMon");
+  mon.innerHTML = monitorHTML(l);
+  faceThenRest(document.querySelector(".anchor"), castFaceFor(l), 3000);
+  mon.querySelectorAll(":scope > *:not(.orb)").forEach(el=>{ el.classList.add("m-in"); });
+  if (l.a !== undefined){ const a = DAY.articles[l.a]; document.getElementById("stTag").textContent = `ニュース${l.a+1}・${a.tag}`; document.getElementById("stHead").textContent = a.short; }
+  else { document.getElementById("stTag").textContent = l.kind==="close" ? "おしまい" : "オープニング"; document.getElementById("stHead").textContent = DAY.label; }
+  document.querySelectorAll("#stBars b").forEach((b,k)=>{ b.style.width = k < l.g ? "100%" : k === l.g ? "50%" : "0"; });
+  const t = document.getElementById("stText"), cap = document.getElementById("stCap");
+  t.innerHTML = window.__chunks(l.text).map(ch=>{ const h=[...ch].map(c=>`<i>${esc(c)}</i>`).join(""); return /[0-9０-９！？!?]/.test(ch) && ch.length<=18 ? `<bdi class="nb">${h}</bdi>` : h; }).join("<wbr>");
+  cap.classList.remove("done");
+  const chars = t.querySelectorAll("i"); let n = 0;
+  ST.typing = true; ST.spoken = !ST.voice;
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduce){ chars.forEach(c=>c.classList.add("on")); n = chars.length; }
+  ST.tTimer = setInterval(()=>{ if(n < chars.length){ chars[n++].classList.add("on"); } else { clearInterval(ST.tTimer); ST.typing = false; cap.classList.add("done"); stTalking(); stMaybeNext(); } }, 42);
+  if (ST.voice) stSpeak(l.text);
+  stTalking();
+}
+function stSpeak(text){
+  const idx = ST.i;
+  sayWith(text, pickVoice(), () => { if (ST.i !== idx) return; ST.spoken = true; stTalking(); stMaybeNext(); });
+}
+function stMaybeNext(){
+  clearTimeout(ST.nTimer);
+  if (!ST.playing || ST.typing || !ST.spoken) return;
+  const len = ST.lines[ST.i].text.length;
+  ST.nTimer = setTimeout(()=>stShow(ST.i+1), ST.voice ? 600 : Math.max(1600, len*55));
+}
+function stFinishOrNext(){
+  if (ST.typing){ clearInterval(ST.tTimer); document.querySelectorAll("#stText i").forEach(c=>c.classList.add("on")); ST.typing = false; document.getElementById("stCap").classList.add("done"); stTalking(); stMaybeNext(); return; }
+  stShow(ST.i+1);
+}
+function stEnd(){
+  stClear(); try{ speechSynthesis.cancel(); }catch(e){}
+  ST.typing = false; ST.spoken = true; stTalking();
+  document.getElementById("stText").innerHTML = `今朝のニュースは以上です。<span class="st-end"><button type="button" class="btn orange" id="stRead">記事を読む</button><button type="button" class="btn line" id="stAgain">もう一度見る</button></span>`;
+  document.querySelectorAll("#stBars b").forEach(b=>b.style.width="100%");
+}
+function fitAnchor(){
+  const a=document.querySelector(".anchor"), m=document.getElementById("stMon"), b=document.getElementById("stBot");
+  if(!a||!m||!b||!document.getElementById("studio")?.classList.contains("open")) return;
+  const top=m.getBoundingClientRect().bottom-70, bot=b.getBoundingClientRect().top+6;
+  const h=Math.max(120,Math.min(bot-top,420));
+  a.style.top=(bot-h)+"px"; a.style.height=h+"px";
+}
+window.addEventListener("resize",()=>setTimeout(fitAnchor,50));
+function openCast(start){
+  buildCast();
+  let i = 0;
+  if (start > 0){ i = ST.lines.findIndex(l => l.a === start-1); if (i < 0) i = 0; }
+  closeSheet(); if (story.classList.contains("open")) closeStory(false);
+  studio.classList.add("open"); document.body.style.overflow = "hidden";
+  ST.playing = true; setPlayBtn();
+  stShow(i); fitAnchor(); setTimeout(fitAnchor,120);
+}
+function closeCast(){ stClear(); try{ speechSynthesis.cancel(); }catch(e){} studio.classList.remove("open","talking"); document.body.style.overflow = ""; }
+function setPlayBtn(){ const b = document.getElementById("stPlay"); b.setAttribute("aria-pressed", ST.playing); b.textContent = ST.playing ? "⏸ 止める" : "▶ 再生"; }
+function jumpArticle(dir){
+  const cur = ST.lines[ST.i] ? ST.lines[ST.i].g : 0;
+  const tg = Math.max(0, Math.min(ST.groups-1, cur + dir));
+  const i = ST.lines.findIndex(l => l.g === tg);
+  stShow(i < 0 ? 0 : i);
+}
+document.getElementById("stCap").addEventListener("click", e => {
+  if (e.target.closest("#stRead")){ closeCast(); go("articles"); return; }
+  if (e.target.closest("#stAgain")){ stShow(0); return; }
+  if (ST.i >= ST.lines.length) return;
+  stFinishOrNext();
+});
+document.getElementById("stMon").addEventListener("click", stFinishOrNext);
+document.getElementById("stClose").addEventListener("click", closeCast);
+document.getElementById("stPrev").addEventListener("click", ()=>jumpArticle(-1));
+document.getElementById("stNext").addEventListener("click", ()=>jumpArticle(1));
+document.getElementById("stPlay").addEventListener("click", ()=>{
+  ST.playing = !ST.playing; setPlayBtn();
+  if (ST.playing){ if (ST.voice && !ST.spoken) stSpeak(ST.lines[ST.i].text); stMaybeNext(); }
+  else { clearTimeout(ST.nTimer); try{ speechSynthesis.cancel(); }catch(e){} ST.spoken = true; stTalking(); }
+});
+const hasVoice = typeof speechSynthesis !== "undefined";
+if (!hasVoice) document.getElementById("stVoice").hidden = true;
+document.getElementById("stVoice").addEventListener("click", ()=>{
+  ST.voice = !ST.voice;
+  const b = document.getElementById("stVoice"); b.setAttribute("aria-pressed", ST.voice); b.textContent = ST.voice ? "🔊 声：オン" : "🔈 声で読む";
+  if (ST.voice && ST.lines[ST.i]){ ST.spoken = false; stSpeak(ST.lines[ST.i].text); }
+  else { try{ speechSynthesis.cancel(); }catch(e){} ST.spoken = true; stMaybeNext(); }
+  stTalking();
+});
+document.addEventListener("keydown", e => { if (!studio.classList.contains("open")) return; if (e.key==="Escape") closeCast(); if (e.key==="ArrowRight") stFinishOrNext(); });
+
+/* ===== 読み上げの声（この端末に入っている声から選ぶ） ===== */
+const VKEY = "kabu-voice";
+let VSET = {name:null, rate:1.0, pitch:1.0};
+try { Object.assign(VSET, JSON.parse(localStorage.getItem(VKEY) || "{}")); } catch(e) {}
+function saveV(){ try { localStorage.setItem(VKEY, JSON.stringify(VSET)); } catch(e) {} }
+const HQ = /拡張|Enhanced|Premium|プレミアム|Neural|Natural|Online/i;
+function jaVoices(){
+  if (typeof speechSynthesis === "undefined") return [];
+  const vs = speechSynthesis.getVoices().filter(v => /^ja/i.test(v.lang));
+  return vs.sort((a,b) => (HQ.test(b.name) - HQ.test(a.name)) || a.name.localeCompare(b.name, "ja"));
+}
+function pickVoice(){
+  /* 声を選んでいないときは null を返し、端末の標準の声（Siri など）にまかせる */
+  if (!VSET.name) return null;
+  return jaVoices().find(v => v.name === VSET.name) || null;
+}
+function sayWith(text, voice, onend){
+  try {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(speakable(text));
+    u.lang = "ja-JP"; u.rate = VSET.rate; u.pitch = VSET.pitch;
+    if (voice) u.voice = voice;
+    if (onend) u.onend = u.onerror = onend;
+    speechSynthesis.speak(u);
+  } catch(e){ if (onend) onend(); }
+}
+function vByIdx(i){ return jaVoices()[i] || null; }
+const SAMPLE = "おはようございます。11月11日、朝のニュースです。きのう、あなたの株はプラス1万7,947円でした。";
+function drawVPanel(){
+  const vs = jaVoices(), cur = pickVoice();
+  const defRow = `<li class="${!cur?"sel":""}"><label><input type="radio" name="vv" value="-1" ${!cur?"checked":""}><span class="vn">端末の標準の声<small>iPhoneの「設定」で選んだ声（Siriなど）</small></span></label><button type="button" class="try" data-try="-1">▶ 聞く</button></li>`;
+  const list = `<ul class="vlist">${defRow}${vs.map((v,i)=>`<li class="${cur && v.name===cur.name?"sel":""}">
+      <label><input type="radio" name="vv" value="${i}" ${cur && v.name===cur.name?"checked":""}><span class="vn">${esc(v.name)}${HQ.test(v.name)?'<span class="hq">高音質</span>':""}<small>${esc(v.lang)}${v.localService===false?"・ネット経由":""}</small></span></label>
+      <button type="button" class="try" data-try="${i}">▶ 聞く</button></li>`).join("")}</ul>`;
+  document.getElementById("vpanel").innerHTML = `
+    <h3>声の設定</h3>
+    <p class="vnote">「▶ 聞く」で聞きくらべて、選んでください。設定はこの端末に保存されます。</p>
+    ${list}
+    <div class="vsl"><span>速さ</span><input type="range" id="vRate" min="0.7" max="1.4" step="0.05" value="${VSET.rate}"><output id="vRateO">${Number(VSET.rate).toFixed(2)}</output></div>
+    <div class="vsl"><span>声の高さ</span><input type="range" id="vPitch" min="0.7" max="1.5" step="0.05" value="${VSET.pitch}"><output id="vPitchO">${Number(VSET.pitch).toFixed(2)}</output></div>
+    <p class="vhow"><b>Siriの声で聞くには</b><br>「端末の標準の声」を選び、このアプリをSafariで開いてください。iPhoneの「設定」→「アクセシビリティ」→「読み上げコンテンツ」→「声」で選んだ声で読み上げます。Claudeアプリの中で開いているときは、Kyokoなど限られた声だけになります。</p>
+    <div class="vacts"><button type="button" class="btn orange" id="vTest">▶ いまの設定で聞く</button><button type="button" class="btn line" id="vReset">元に戻す</button><button type="button" class="btn line" id="vClose">とじる</button></div>`;
+}
+function openVPanel(){
+  if (ST.playing){ ST.playing = false; setPlayBtn(); clearTimeout(ST.nTimer); }
+  try { speechSynthesis.cancel(); } catch(e) {}
+  ST.spoken = true; stTalking();
+  drawVPanel(); document.getElementById("vpanel").hidden = false;
+}
+function closeVPanel(){ try { speechSynthesis.cancel(); } catch(e) {} document.getElementById("vpanel").hidden = true; }
+if (typeof speechSynthesis !== "undefined") speechSynthesis.addEventListener?.("voiceschanged", ()=>{ if (!document.getElementById("vpanel").hidden) drawVPanel(); });
+document.getElementById("stVset").addEventListener("click", openVPanel);
+if (typeof speechSynthesis === "undefined") document.getElementById("stVset").hidden = true;
+document.getElementById("vpanel").addEventListener("click", e => {
+  const t = e.target.closest("[data-try]");
+  if (t){ sayWith(SAMPLE, vByIdx(+t.dataset.try)); return; }
+  if (e.target.closest("#vTest")){ sayWith(SAMPLE, pickVoice()); return; }
+  if (e.target.closest("#vReset")){ VSET = {name:null, rate:1.0, pitch:1.0}; saveV(); drawVPanel(); return; }
+  if (e.target.closest("#vClose")){ closeVPanel(); return; }
+});
+document.getElementById("vpanel").addEventListener("change", e => {
+  if (e.target.name === "vv"){ const v = vByIdx(+e.target.value); VSET.name = v ? v.name : null; saveV(); drawVPanel(); sayWith(SAMPLE, v); }
+});
+document.getElementById("vpanel").addEventListener("input", e => {
+  if (e.target.id === "vRate"){ VSET.rate = +e.target.value; document.getElementById("vRateO").textContent = VSET.rate.toFixed(2); saveV(); }
+  if (e.target.id === "vPitch"){ VSET.pitch = +e.target.value; document.getElementById("vPitchO").textContent = VSET.pitch.toFixed(2); saveV(); }
+});
+
+/* ===== 左下のキャスター ===== */
+const mini = document.getElementById("mini");
+let miniTimer = null, miniView = null;
+/* ===== キャスターの表情（assets/face/ に9枚） ===== */
+const FACE_IDS = ["fm","f0","f1","f2","f3","f4","f5","f6","f7"];
+/* fm=ふつう f0=にっこり f1=大よろこび f2=うーん f3=おどろき f4=むすっ f5=てれ f6=説明 f7=やさしい笑顔 */
+document.querySelectorAll("[data-stack]").forEach(st => {
+  st.innerHTML = FACE_IDS.map(id => `<img class="fx${id==="fm"?" on":""}" data-f="${id}" src="assets/face/${id}.webp" alt="" decoding="async">`).join("");
+});
+function setFace(root, id){
+  if (!root) return;
+  root.querySelectorAll(".fx").forEach(i => i.classList.toggle("on", i.dataset.f === id));
+}
+let faceTimers=new WeakMap();
+function faceThenRest(root,id,ms){
+  setFace(root,id); clearTimeout(faceTimers.get(root));
+  if(id!=="f0") faceTimers.set(root,setTimeout(()=>setFace(root,"f0"),ms||3200));
+}
+function miniFaceFor(view){
+  if (view === "articles" || view === "words") return "f6";
+  if (view === "stocks") return "f2";
+  const d = Math.round(portfolio().day);
+  return d > 0 ? "f1" : d < 0 ? "f2" : "f0";
+}
+function castFaceFor(l){
+  if (l.kind === "day") return l.val > 0 ? "f1" : l.val < -30000 ? "f4" : l.val < 0 ? "f2" : "f0";
+  if (l.kind === "title") return /[！？!?]/.test(DAY.articles[l.a].hook) ? "f3" : "f6";
+  if (l.kind === "impact") return l.val > 0 ? "f7" : l.val < 0 ? "f2" : "f0";
+  if (l.kind === "close") return "f5";
+  return "f0";
+}
+function miniLine(view){
+  const p = portfolio();
+  if (view === "articles") return "わからない言葉は、点線の下線をタップすると説明が出ますよ。";
+  if (view === "stocks") return `ニュースをヒントに、架空で売り買いしてみましょう。いまの現金は ${yen(p.cash)} です。`;
+  if (view === "words") return `ここまでに ${Object.keys(WORDS).length}語 たまりました。少しずつ覚えていきましょう。`;
+  const d = Math.round(p.day);
+  return `きのう、あなたの株は ${signed(p.day)}。${d>0?"いい朝ですね！":d<0?"今日はニュースで理由を見てみましょう。":""}今日のニュースは${DAY.articles.length}本です。`;
+}
+function miniSay(view, force){
+  if (!force && miniView === view) return;
+  miniView = view;
+  document.getElementById("miniText").textContent = miniLine(view);
+  faceThenRest(document.getElementById("miniFace"), force ? ["f7","f5","f1","f3","f6"][Math.floor(Math.random()*5)] : miniFaceFor(view), 4000);
+  mini.classList.add("say"); mini.classList.remove("talking"); void mini.offsetWidth; mini.classList.add("talking");
+  document.getElementById("miniDot").hidden = true;
+  clearTimeout(miniTimer); miniTimer = setTimeout(miniHide, 7000);
+}
+function miniHide(){ mini.classList.remove("say","talking"); }
+document.getElementById("miniFace").addEventListener("click", ()=>{ if (mini.classList.contains("say")) miniHide(); else miniSay(miniView || "home", true); });
+document.getElementById("miniX").addEventListener("click", miniHide);
+let scrollT = null;
+window.addEventListener("scroll", ()=>{ mini.classList.add("scrolling"); clearTimeout(scrollT); scrollT = setTimeout(()=>mini.classList.remove("scrolling"), 900); }, {passive:true});
+window.addEventListener("hashchange", ()=>{ const v=hv(); miniSay(VIEWS.includes(v)?v:"home"); });
+
+render(); show(); window.__phrasify(document.body);
+document.getElementById("castSub").textContent = `キャスターが今日のニュース${DAY.articles.length}本を読みます`;
+let seenToday = false;
+try { seenToday = localStorage.getItem("highlight-seen") === DAY.date; } catch(e) {}
+if (!seenToday) openStory();
+setTimeout(()=>{ const v=hv(); miniSay(VIEWS.includes(v)?v:"home"); }, seenToday ? 600 : 0);
+</script>
+</body>
+</html>
