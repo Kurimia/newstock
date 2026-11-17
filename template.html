@@ -545,7 +545,7 @@ details.more[open] summary::after{content:"－"}
     <div class="sec"><h2>持っている株<small>タップでくわしく</small></h2></div>
     <div class="card slist" id="stocklist"></div>
     <div id="histbox"></div>
-    <p class="note">練習用なので1株から、手数料なしで売り買いできます（日本株は本当は100株単位が基本）。売り買いは11月10日の終値で行い、この端末の中だけに記録されます。米国株はドルの株価を、その日のドル円で円に直しています。</p>
+    <p class="note">練習用なので1株から、手数料なしで売り買いできます（日本株は本当は100株単位が基本）。売り買いは11月16日の終値で行い、この端末の中だけに記録されます。米国株はドルの株価を、その日のドル円で円に直しています。</p>
     <div id="sdetail"></div>
   </section>
 
@@ -764,7 +764,7 @@ function render(){
       ${full ? spark(r.hist,56,24,r.chg>=0?"var(--up)":"var(--down)",false) : "<span></span>"}
       <span class="v ${r.base?dirClass(Math.round(r.day)):""}">${v}</span>
     </button>`;}).join("");
-  document.getElementById("howto").textContent = "試作版：データは11月11日朝の時点です。値動きを見せるため、11月4日の終値で買ったことにして、11月10日までの実際の終値で計算しています。マイクロソフトの11/4・11/5と関西電力の11/5の終値は、報道された上げ下げの率から計算した近い値です。INPEXの終値は夜間取引の報道から計算しました。本番では毎朝7時ごろにClaudeが記事と株価を更新します。投資のおすすめではありません。";
+  document.getElementById("howto").textContent = "試作版：データは11月17日朝の時点です。値動きを見せるため、11月4日の終値で買ったことにして、11月16日までの実際の終値で計算しています。エヌビディアの11/12・11/13の終値は、報じられた下落率から計算した近い値です。マイクロソフトの11/5の終値も近い値で、LINEヤフーの11/11は確認できなかったため表示していません。原油は報道の下落率からの概算です。本番では毎朝7時ごろにClaudeが記事と株価を更新します。投資のおすすめではありません。";
 
   /* 記事 */
   document.getElementById("articleList").innerHTML = DAY.articles.map((a,ai) => {
@@ -1409,7 +1409,7 @@ function sayWith(text, voice, onend){
   } catch(e){ if (onend) onend(); }
 }
 function vByIdx(i){ return jaVoices()[i] || null; }
-const SAMPLE = "おはようございます。11月11日、朝のニュースです。きのう、あなたの株はプラス1万7,947円でした。";
+const SAMPLE = "おはようございます。NEWSTOCK、朝のニュースです。今日もゆっくり、いっしょに見ていきましょう。";
 function drawVPanel(){
   const vs = jaVoices(), cur = pickVoice();
   const defRow = `<li class="${!cur?"sel":""}"><label><input type="radio" name="vv" value="-1" ${!cur?"checked":""}><span class="vn">端末の標準の声<small>iPhoneの「設定」で選んだ声（Siriなど）</small></span></label><button type="button" class="try" data-try="-1">▶ 聞く</button></li>`;
