@@ -353,6 +353,7 @@ details.more[open] summary::after{content:"－"}
 .kseg{background:var(--card);margin:0 0 14px}
 .kseg span{font-family:var(--font-num);margin-left:4px;opacity:.7}
 .olink{margin:4px 0 0 auto;display:flex}
+.ohead{display:flex;flex-direction:column;gap:10px;align-items:flex-start}
 .olink[hidden],.olist[hidden],#articleList[hidden]{display:none!important}
 .olist{display:flex;flex-direction:column;gap:12px}
 .olead{font-size:13px;color:var(--muted);line-height:1.7;margin:0 2px 2px}
@@ -365,6 +366,7 @@ details.more[open] summary::after{content:"－"}
 .ocard .todo{background:var(--peach-soft);border-radius:var(--r-sm);padding:12px 14px}
 .ocard .todo b{display:block;font-size:13px;margin-bottom:4px}
 .ocard .src{font-size:12px}
+.tag.t-お金{background:#fff1c9;color:#8a5a00}
 .tag.t-くらし{background:#e7f6ee;color:#1f7a4d}
 .tag.t-ほっこり{background:#fff1c9;color:#8a5a00}
 .tag.t-社会,.tag.t-国際{background:var(--bg);color:var(--ink)}
@@ -442,6 +444,9 @@ details.heavy .ocard>.otop,details.heavy .ocard>h3{display:none}
 .onair::before{content:"";width:8px;height:8px;border-radius:50%;background:#e03a3e;animation:blink 1.4s infinite}
 @keyframes blink{50%{opacity:.25}}
 .st-top .ttl{font-size:13px;font-weight:700}
+.st-part{display:flex;gap:4px;background:rgba(255,255,255,.55);border-radius:999px;padding:3px}
+.st-part button{border:0;background:none;border-radius:999px;padding:6px 14px;font-size:13px;font-weight:700;color:#141416;cursor:pointer;white-space:nowrap}
+.st-part button[aria-pressed="true"]{background:#141416;color:#fff}
 .st-top .x{margin-left:auto;background:rgba(255,255,255,.7);border:0;width:38px;height:38px;border-radius:50%;font-size:22px;line-height:1;cursor:pointer}
 .st-bars{position:absolute;top:calc(56px + env(safe-area-inset-top,0px));left:14px;right:14px;display:flex;gap:4px;z-index:5}
 .st-bars i{flex:1;height:3px;border-radius:2px;background:rgba(20,20,22,.15);overflow:hidden}
@@ -542,6 +547,7 @@ details.heavy .ocard>.otop,details.heavy .ocard>h3{display:none}
 .slide .three{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:12px}
 .slide .three li{font-size:18px;font-weight:700;line-height:1.45;display:flex;gap:10px;align-items:baseline}
 .slide .three li em{flex:none;font-style:normal;font-size:12px;padding:1px 10px;border-radius:999px;border:1.5px solid rgba(255,255,255,.7)}
+.slide .three.olines li{font-size:15px;font-weight:600}
 .slide .end{margin-top:26px;align-self:flex-start;color:#fff}
 @media (prefers-reduced-motion: reduce){.slide.on .a{animation:none;opacity:1}.sheet{transition:none}.toast{transition:none}}
 </style>
@@ -602,7 +608,7 @@ details.heavy .ocard>.otop,details.heavy .ocard>h3{display:none}
 
 <div class="studio" id="studio" role="dialog" aria-modal="true" aria-label="朝のニュース番組">
   <div class="beams"></div><div class="set"></div>
-  <div class="st-top"><span class="onair">ON AIR</span><span class="ttl">NEWSTOCK 朝の便</span><button type="button" class="x" id="stClose" aria-label="番組を閉じる">×</button></div>
+  <div class="st-top"><span class="onair">ON AIR</span><div class="st-part" role="group" aria-label="番組のパート"><button type="button" data-part="econ" aria-pressed="true">経済</button><button type="button" data-part="other" aria-pressed="false">そのほか</button></div><button type="button" class="x" id="stClose" aria-label="番組を閉じる">×</button></div>
   <div class="st-bars" id="stBars"></div>
   <div class="monitor night grain" id="stMon"></div>
   <div class="anchor" role="img" aria-label="ニュースを読むキャスター"><span class="fstack" data-stack></span></div>
@@ -823,7 +829,7 @@ function render(){
       ${o.todo ? `<div class="todo"><b>自分でできること</b><ul>${o.todo.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>` : ""}
       <div class="src">出典：${o.sources.map(([t,u])=>`<a href="${u}" target="_blank" rel="noopener">${esc(t)}</a>`).join("")}</div>
     </div>`;
-  document.getElementById("otherList").innerHTML = OTH.length ? `<p class="olead">株の値動きとは関係しない、今日の話題です。少し重めの話題は、たたんであります。読みたいときだけ開いてください。</p>` + OTH.map(o => o.heavy
+  document.getElementById("otherList").innerHTML = OTH.length ? `<div class="ohead"><p class="olead">株の値動きとは直接関係しない、くらしとお金の話題です。少し重めの話題は、たたんであります。読みたいときだけ開いてください。</p><button type="button" class="btn line castbtn" data-cast-other>▶ キャスターで聞く</button></div>` + OTH.map(o => o.heavy
       ? `<details class="heavy"><summary><small>少し重めの話題・${esc(o.tag)}${o.when?"・"+esc(o.when):""}</small><b>${esc(o.title)}</b><em>タップで読む</em></summary>${ocard(o)}</details>`
       : ocard(o)).join("") : `<p class="olead">今日は、そのほかのニュースはありません。</p>`;
 
@@ -1081,6 +1087,7 @@ document.addEventListener("click", e => {
   const g = e.target.closest("[data-goto]");
   if (g){ const el=document.getElementById(g.dataset.goto); if(el) el.scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth", block:"start"}); return; }
   const j = e.target.closest("[data-go]"); if (j){ const [v,id]=j.dataset.go.split(":"); go(v,id); return; }
+  if (e.target.closest("[data-cast-other]")){ openCast(0, "other"); return; }
   const cs = e.target.closest("[data-cast]"); if (cs){ openCast(+cs.dataset.cast); return; }
   const s = e.target.closest("[data-story]"); if (s){ openStory(); }
 });
@@ -1112,8 +1119,12 @@ function buildStory(){
       A(`<p class="hook">${a.hook.split("\n").map(l=>`<mark>${esc(l)}</mark>`).join("")}</p>`,.15)+
       A(`<p class="stitle">${esc(a.short)}</p>`,.6)+
       A(`<span class="simp">${imp}</span>`,1.0)+
-      (i===NA-1 ? A(`<span class="btn line go end">記事をじっくり読む</span>`,1.4) : "")});
+      (i===NA-1 && !(DAY.other||[]).length ? A(`<span class="btn line go end">記事をじっくり読む</span>`,1.4) : "")});
   });
+  if ((DAY.other||[]).length) S.push({dur:4200, html:
+    A(`<p class="lead">そのほかのニュース</p>`,0)+
+    `<ul class="three olines">${DAY.other.map((o,i)=>A(`<li><em>${o.tag}</em>${esc(o.title)}</li>`,.25+i*.2)).join("")}</ul>`+
+    A(`<span class="btn line go end">記事をじっくり読む</span>`,.4+DAY.other.length*.2)});
   document.getElementById("storySlides").innerHTML = S.map(s=>`<section class="slide">${s.html}</section>`).join("");
   document.getElementById("storyBars").innerHTML = S.map(()=>`<i><b></b></i>`).join("");
   sDur = S.map(s=>s.dur);
@@ -1307,17 +1318,19 @@ document.addEventListener("keydown", e => {
 
 /* ===== ニュース番組（キャスターが読む） ===== */
 const studio = document.getElementById("studio");
-const ST = {lines:[], i:0, typing:false, spoken:true, playing:true, voice:false, tTimer:null, nTimer:null, groups:[]};
+const ST = {part:"econ", lines:[], i:0, typing:false, spoken:true, playing:true, voice:false, tTimer:null, nTimer:null, groups:[]};
 const plain = t => String(t).replace(/\{\{\w+\|([^}]+)\}\}/g, "$1");
 const firstSentence = t => { const x = plain(t); const k = x.indexOf("。"); return k >= 0 ? x.slice(0, k+1) : x; };
 function buildCast(){
   const p = portfolio();
+  document.querySelectorAll(".st-part [data-part]").forEach(b=>b.setAttribute("aria-pressed", b.dataset.part===ST.part));
+  if (ST.part === "other"){ buildCastOther(p); return; }
   const byId = Object.fromEntries(p.rows.map(s=>[s.id,s]));
   const NA = DAY.articles.length, day = DAY.label.replace(" 朝の便","");
   const L = [];
   L.push({g:0, kind:"open", text:`おはようございます。${day.replace(/（.）/,"")}、朝のニュースです。`});
   L.push({g:0, kind:"day", text:`まずは、あなたの株から。きのう、あなたの株は ${signed(p.day)} でした。`, val:p.day});
-  L.push({g:0, kind:"list", text:`今日のニュースは${NA}本です。`});
+  L.push({g:0, kind:"list", text:`今日の株と経済のニュースは${NA}本です。`});
   DAY.articles.forEach((a,ai)=>{
     const lead = ai===0 ? "最初は" : ai===NA-1 ? "最後は" : "続いては";
     L.push({g:ai+1, a:ai, kind:"title", text:`${lead}${a.tag}のニュースです。${a.short}。`});
@@ -1325,13 +1338,39 @@ function buildCast(){
     const r = a.stocks.reduce((s,id)=>s+byId[id].day,0);
     L.push({g:ai+1, a:ai, kind:"impact", val:r, text: a.stocks.length ? `このニュースに関係する株は、きのう、合わせて ${signed(r)} 動きました。` : `あなたの持ち株には、直接の関係はありません。`});
   });
-  L.push({g:NA+1, kind:"close", text:"以上、今朝のニュースでした。くわしくは、記事をじっくり読んでみてくださいね。"});
+  L.push({g:NA+1, kind:"close", text:"以上、株と経済のニュースでした。続けて、そのほかのニュースも聞けますよ。"});
   ST.lines = L; ST.groups = NA + 2;
   document.getElementById("stBars").innerHTML = Array.from({length:ST.groups},()=>"<i><b></b></i>").join("");
   document.getElementById("stTicker").innerHTML = DAY.market.map(m=>`<span>${m.k} ${m.v} <b class="${m.dir>0?"up":m.dir<0?"down":""}">${m.d}</b></span>`).join("") +
     p.rows.filter(r=>r.base).map(r=>`<span>${r.name} ${native(r)} <b class="${dirClass(r.chg)}">${pct(r.chg)}</b></span>`).join("");
 }
+function castTicker(p){
+  document.getElementById("stTicker").innerHTML = DAY.market.map(m=>`<span>${m.k} ${m.v} <b class="${m.dir>0?"up":m.dir<0?"down":""}">${m.d}</b></span>`).join("") +
+    p.rows.filter(r=>r.base).map(r=>`<span>${r.name} ${native(r)} <b class="${dirClass(r.chg)}">${pct(r.chg)}</b></span>`).join("");
+}
+function buildCastOther(p){
+  const OT = DAY.other || [], NO = OT.length, L = [];
+  L.push({g:0, kind:"oopen", text: NO ? `ここからは、そのほかのニュースです。今日は${NO}本です。` : "今日は、そのほかのニュースはありません。"});
+  OT.forEach((o,oi)=>{
+    const lead = oi===0 ? "最初は" : oi===NO-1 ? "最後は" : "続いては";
+    L.push({g:oi+1, o:oi, kind:"otitle", text:`${lead}、${o.tag}の話題です。${o.title}。`});
+    o.body.forEach((pt,k)=> L.push({g:oi+1, o:oi, kind:"opt", k, text:firstSentence(pt)}));
+    if (o.todo && o.todo.length) L.push({g:oi+1, o:oi, kind:"otodo", text:`自分でできることは、${o.todo.map(x=>x.replace(/[。]$/,"")).join("、")}、などです。`});
+  });
+  L.push({g:NO+1, kind:"close", text:"以上、そのほかのニュースでした。今日も、いってらっしゃい。"});
+  ST.lines = L; ST.groups = NO + 2;
+  document.getElementById("stBars").innerHTML = Array.from({length:ST.groups},()=>"<i><b></b></i>").join("");
+  castTicker(p);
+}
 function monitorHTML(l){
+  const OT = DAY.other || [];
+  if (l.kind === "oopen") return `<div class="orb"></div><span class="m-tag">そのほかのニュース</span><div class="m-num">${OT.length}本</div><ul class="m-list">${OT.map(o=>`<li><em>${o.tag}</em>${esc(o.title)}</li>`).join("")}</ul>`;
+  if (l.o !== undefined){
+    const o = OT[l.o];
+    const small = l.kind==="opt" ? `ポイント ${l.k+1}／${o.body.length}` : l.kind==="otodo" ? "自分でできること" : (o.heavy ? "少し重めの話題" : "見出し");
+    return `<div class="orb"></div><span class="m-tag">そのほか ${l.o+1}／${OT.length}・${o.tag}</span><div class="m-num">${esc(o.tag)}</div><div class="m-cap">${esc(o.when||"")}</div><div class="m-head"><small>${small}</small>${esc(o.title)}</div>`;
+  }
+  if (l.kind === "close" && ST.part === "other") return `<div class="orb"></div><span class="m-tag">おしまい</span><div class="m-num">また明日</div><div class="m-cap">そのほかのニュースも、記事で読めます</div>`;
   const p = portfolio(), NA = DAY.articles.length;
   if (l.kind === "open") return `<div class="orb"></div><span class="m-tag">${DAY.label}</span><div class="m-num">朝のニュース</div><div class="m-cap">ニュース${NA}本と、あなたの株</div>`;
   if (l.kind === "day") return `<div class="orb"></div><span class="m-tag">あなたの株</span><div class="m-num ${dirClass(Math.round(l.val))}">${signed(l.val)}</div><div class="m-cap">きのうの動き・いまの資産 ${yen(p.total)}</div>`;
@@ -1364,8 +1403,9 @@ function stShow(i){
   mon.innerHTML = monitorHTML(l);
   faceThenRest(document.querySelector(".anchor"), castFaceFor(l), 3000);
   mon.querySelectorAll(":scope > *:not(.orb)").forEach(el=>{ el.classList.add("m-in"); });
-  if (l.a !== undefined){ const a = DAY.articles[l.a]; document.getElementById("stTag").textContent = `ニュース${l.a+1}・${a.tag}`; document.getElementById("stHead").textContent = a.short; }
-  else { document.getElementById("stTag").textContent = l.kind==="close" ? "おしまい" : "オープニング"; document.getElementById("stHead").textContent = DAY.label; }
+  if (l.o !== undefined){ const o = DAY.other[l.o]; document.getElementById("stTag").textContent = `そのほか${l.o+1}・${o.tag}`; document.getElementById("stHead").textContent = o.title; }
+  else if (l.a !== undefined){ const a = DAY.articles[l.a]; document.getElementById("stTag").textContent = `ニュース${l.a+1}・${a.tag}`; document.getElementById("stHead").textContent = a.short; }
+  else { document.getElementById("stTag").textContent = l.kind==="close" ? "おしまい" : ST.part==="other" ? "そのほか" : "オープニング"; document.getElementById("stHead").textContent = DAY.label; }
   document.querySelectorAll("#stBars b").forEach((b,k)=>{ b.style.width = k < l.g ? "100%" : k === l.g ? "50%" : "0"; });
   const t = document.getElementById("stText"), cap = document.getElementById("stCap");
   t.innerHTML = window.__chunks(l.text).map(ch=>{ const h=[...ch].map(c=>`<i>${esc(c)}</i>`).join(""); return /[0-9０-９！？!?]/.test(ch) && ch.length<=18 ? `<bdi class="nb">${h}</bdi>` : h; }).join("<wbr>");
@@ -1395,7 +1435,8 @@ function stFinishOrNext(){
 function stEnd(){
   stClear(); try{ speechSynthesis.cancel(); }catch(e){}
   ST.typing = false; ST.spoken = true; stTalking();
-  document.getElementById("stText").innerHTML = `今朝のニュースは以上です。<span class="st-end"><button type="button" class="btn orange" id="stRead">記事を読む</button><button type="button" class="btn line" id="stAgain">もう一度見る</button></span>`;
+  const oth = ST.part === "other";
+  document.getElementById("stText").innerHTML = `${oth ? "そのほかのニュース" : "株と経済のニュース"}は以上です。<span class="st-end">${oth ? `<button type="button" class="btn orange" id="stRead">記事を読む</button><button type="button" class="btn line" data-part="econ">経済のパートを聞く</button>` : `<button type="button" class="btn orange" data-part="other">そのほかを聞く</button><button type="button" class="btn line" id="stRead">記事を読む</button>`}<button type="button" class="btn line" id="stAgain">もう一度</button></span>`;
   document.querySelectorAll("#stBars b").forEach(b=>b.style.width="100%");
 }
 function fitAnchor(){
@@ -1406,10 +1447,11 @@ function fitAnchor(){
   a.style.top=(bot-h)+"px"; a.style.height=h+"px";
 }
 window.addEventListener("resize",()=>setTimeout(fitAnchor,50));
-function openCast(start){
+function openCast(start, part){
+  ST.part = part || "econ";
   buildCast();
   let i = 0;
-  if (start > 0){ i = ST.lines.findIndex(l => l.a === start-1); if (i < 0) i = 0; }
+  if (start > 0 && ST.part === "econ"){ i = ST.lines.findIndex(l => l.a === start-1); if (i < 0) i = 0; }
   closeSheet(); if (story.classList.contains("open")) closeStory(false);
   studio.classList.add("open"); document.body.style.overflow = "hidden";
   ST.playing = true; setPlayBtn();
@@ -1424,13 +1466,14 @@ function jumpArticle(dir){
   stShow(i < 0 ? 0 : i);
 }
 document.getElementById("stCap").addEventListener("click", e => {
-  if (e.target.closest("#stRead")){ closeCast(); go("articles"); return; }
+  if (e.target.closest("#stRead")){ const oth = ST.part === "other"; closeCast(); go("articles"); setKind(oth ? "other" : "stock"); return; }
   if (e.target.closest("#stAgain")){ stShow(0); return; }
   if (ST.i >= ST.lines.length) return;
   stFinishOrNext();
 });
 document.getElementById("stMon").addEventListener("click", stFinishOrNext);
 document.getElementById("stClose").addEventListener("click", closeCast);
+studio.addEventListener("click", e => { const pb = e.target.closest("[data-part]"); if (!pb) return; e.stopPropagation(); try{ speechSynthesis.cancel(); }catch(_){} openCast(0, pb.dataset.part); }, true);
 document.getElementById("stPrev").addEventListener("click", ()=>jumpArticle(-1));
 document.getElementById("stNext").addEventListener("click", ()=>jumpArticle(1));
 document.getElementById("stPlay").addEventListener("click", ()=>{
@@ -1546,6 +1589,8 @@ function castFaceFor(l){
   if (l.kind === "title") return /[！？!?]/.test(DAY.articles[l.a].hook) ? "f3" : "f6";
   if (l.kind === "impact") return l.val > 0 ? "f7" : l.val < 0 ? "f2" : "f0";
   if (l.kind === "close") return "f5";
+  if (l.kind === "oopen") return "f1";
+  if (l.kind === "otitle") return DAY.other[l.o].heavy ? "f2" : "f6";
   return "f0";
 }
 function miniLine(view){
