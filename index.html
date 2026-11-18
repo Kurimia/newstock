@@ -350,6 +350,33 @@ details.more[open] summary::after{content:"－"}
 .seg{display:grid;grid-template-columns:1fr 1fr;background:var(--bg);border-radius:999px;padding:4px;margin:12px 0}
 .seg button{border:0;background:none;border-radius:999px;padding:8px;font-weight:700;cursor:pointer;color:var(--muted)}
 .seg button[aria-pressed="true"]{background:var(--ink);color:var(--card)}
+.kseg{background:var(--card);margin:0 0 14px}
+.kseg span{font-family:var(--font-num);margin-left:4px;opacity:.7}
+.olink{margin:4px 0 0 auto;display:flex}
+.olink[hidden],.olist[hidden],#articleList[hidden]{display:none!important}
+.olist{display:flex;flex-direction:column;gap:12px}
+.olead{font-size:13px;color:var(--muted);line-height:1.7;margin:0 2px 2px}
+.ocard{background:var(--card);border-radius:var(--r-lg);padding:18px 18px 16px;display:flex;flex-direction:column;gap:10px}
+.ocard .otop{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ocard .when{font-size:12px;color:var(--muted)}
+.ocard h3{font-size:18px;line-height:1.55;margin:0}
+.ocard p{margin:0;font-size:15px;line-height:1.8}
+.ocard ul{margin:0;padding-left:1.2em;font-size:15px;line-height:1.8}
+.ocard .todo{background:var(--peach-soft);border-radius:var(--r-sm);padding:12px 14px}
+.ocard .todo b{display:block;font-size:13px;margin-bottom:4px}
+.ocard .src{font-size:12px}
+.tag.t-くらし{background:#e7f6ee;color:#1f7a4d}
+.tag.t-ほっこり{background:#fff1c9;color:#8a5a00}
+.tag.t-社会,.tag.t-国際{background:var(--bg);color:var(--ink)}
+details.heavy{background:var(--card);border-radius:var(--r-lg);border:1.5px dashed var(--line)}
+details.heavy>summary{list-style:none;cursor:pointer;padding:16px 18px;display:flex;flex-direction:column;gap:4px}
+details.heavy>summary::-webkit-details-marker{display:none}
+details.heavy>summary small{font-size:12px;color:var(--muted)}
+details.heavy>summary b{font-size:15px;line-height:1.6}
+details.heavy>summary em{font-style:normal;font-size:13px;font-weight:700;color:var(--orange)}
+details.heavy[open]>summary em{display:none}
+details.heavy .ocard{padding-top:0;background:none}
+details.heavy .ocard>.otop,details.heavy .ocard>h3{display:none}
 .tpx{font-size:14px;color:var(--muted)}
 .tpx b{font-family:var(--font-num);font-size:22px;font-weight:600;color:var(--ink)}
 .qty{display:flex;align-items:center;justify-content:center;gap:12px;margin:6px 0 4px}
@@ -529,6 +556,7 @@ details.more[open] summary::after{content:"－"}
     <div class="mkt" id="mkt"></div>
     <div class="sec"><h2 id="newsCount">今日のニュース</h2><a class="more-link" href="#articles">ぜんぶ読む</a></div>
     <div class="hnews" id="hnews"></div>
+    <button type="button" class="more-link olink" id="otherLink" data-other hidden></button>
     <div class="sec"><h2>マイ銘柄</h2><a class="more-link" href="#stocks">くわしく</a></div>
     <div class="card slist" id="hstocks"></div>
     <p class="howto" id="howto"></p>
@@ -536,7 +564,9 @@ details.more[open] summary::after{content:"－"}
 
   <section class="view" id="view-articles">
     <div class="sec"><h2>今日の記事</h2><button type="button" class="more-link" data-story>ハイライト</button></div>
+    <div class="seg kseg" role="group" aria-label="記事の種類"><button type="button" data-kind="stock" aria-pressed="true">株のニュース</button><button type="button" data-kind="other" aria-pressed="false">そのほか<span id="otherN"></span></button></div>
     <div id="articleList" style="display:flex;flex-direction:column;gap:16px"></div>
+    <div id="otherList" class="olist" hidden></div>
   </section>
 
   <section class="view" id="view-stocks">
@@ -808,6 +838,53 @@ const DAY = {
      text:"17日は5.9%安でした。東証では鉱業や商社の株が下がった一方、原油の値段はほぼ横ばいでした。理由を確かめてから考えるのも一つの方法です。",
      other:"原油の値段が大きく動いていない日の下げを、買い場と見る人もいます。"}
   ],
+  /* そのほかのニュース（株価とは関係しない話題）。heavy:true は重めの話題で、最初はたたんで表示 */
+  other: [
+    {tag:"くらし", when:"11/17 夕方の予報",
+     title:"関東の雨は朝までにやむ見込み きょうの東京は20℃超えの予報",
+     body:[
+       "17日は小笠原の母島で、1時間に80.5ミリの猛烈な雨が降りました。11月としては記録的な大雨です。",
+       "関東でも、17日の夜から18日の明け方にかけて雨が強まりました。千葉県、神奈川県東部、茨城県南部では、警報級の大雨になるおそれがあると予報されていました。",
+       "18日は朝に雨がやむところが多く、日中は天気が回復する見込みです。東京都心の最高気温は20℃を超える予報で、17日夕方（10.3℃）よりぐっと暖かくなります。"
+     ],
+     sources:[["今夜の関東は警報級大雨のおそれ（tenki.jp）","https://tenki.jp/forecaster/gureweather/2026/11/17/41347.html"]]},
+    {tag:"ほっこり", when:"11/17",
+     title:"レッサーパンダの風太、「いちばん長生き」でギネス世界記録に",
+     body:[
+       "千葉市動物公園のレッサーパンダ「風太」が、「飼育されていて生きている中で最高齢のレッサーパンダ」としてギネス世界記録に認定されました。記録は23歳135日（11月17日時点）で、17日に認定式が開かれました。",
+       "風太は2003年7月5日生まれのオスです。後ろ足ですっと立つ姿で有名になりました。",
+       "動物園では11月21日から、認定を記念した限定カードを来園者に配る予定です（2万枚、なくなりしだい終了）。"
+     ],
+     sources:[
+       ["風太がギネス世界記録に認定されます（千葉市動物公園）","https://www.city.chiba.jp/zoo/event/1117futaguiness.html"],
+       ["風太がギネス認定へ 記録と年表（pondaichi）","https://www.pondaichi-act2.tech/futa-red-panda-guinness-oldest-2026/"]
+     ]},
+    {tag:"国際", when:"11/17〜21",
+     title:"愛子さま、シンガポールを公式訪問 海外への公式訪問は2回目",
+     body:[
+       "天皇・皇后両陛下の長女の愛子さまは、17日から21日までの日程でシンガポールを公式訪問しています。",
+       "ことしは日本とシンガポールが外交関係を結んでから60年の節目で、シンガポールの大統領から招待を受けての訪問です。海外への公式訪問は、昨年11月のラオスに続いて2回目です。",
+       "滞在中は大統領を表敬訪問するほか、大統領が主催する食事会にも出席する予定です。"
+     ],
+     sources:[["愛子さま、来月シンガポールへ（共同通信／熊本日日新聞）","https://kumanichi.com/articles/2049666"]]},
+    {tag:"社会", heavy:true, when:"10/31・11/2 発表",
+     title:"楽天証券などで、社債を買った人の情報が漏れたおそれ",
+     body:[
+       "楽天証券は10月31日、「デジタル特典付き社債」を買った人の一部について、情報が延べ362件漏れた可能性があると発表しました。対象は、カゴメ、JR西日本、近鉄グループホールディングスの3つの社債です。",
+       "原因は、特典の申し込みなどに使う外部のシステム（NTTデータの委託先のもの）への不正なアクセスです。楽天証券は、自社のシステムが入り込まれたわけではないと説明しています。ログインのIDやパスワード、取引に必要な情報は、漏れた可能性のある情報に含まれていないと報告を受けたということです。",
+       "NTTデータは11月2日の続報で、ほかの会社の社債も合わせて、氏名や住所、メールアドレスなどが漏れた人数を明らかにしました。漏れた情報が悪用された例は、今のところ確認されていないとしています。原因の調査は続いています。"
+     ],
+     todo:[
+       "3つの社債（カゴメ・JR西日本・近鉄GHD）を楽天証券で買ったかどうかを確かめる",
+       "楽天証券などを名乗る、心当たりのないメール・SMS・電話のリンクは開かない",
+       "証券口座のログインに、パスキーなどの強い設定をしておく"
+     ],
+     sources:[
+       ["楽天証券で延べ362件、社債購入者の情報が漏えいか（ビジネス+IT）","https://www.sbbit.jp/article/fj/188006"],
+       ["NTTデータ 第2報（2026年11月2日）","https://www.nttdata.com/global/ja/news/release/2026/110200"],
+       ["楽天証券の情報漏えいの可能性 対象と確かめること（atsoho）","https://atsoho.com/blog/rakuten-sec-digital-bond-ntt-data-breach"]
+     ]}
+  ],
   startCash: 1000000
 };
 
@@ -1020,6 +1097,21 @@ function render(){
     </button>`;}).join("");
   document.getElementById("howto").textContent = "試作版：データは11月18日朝の時点です。値動きを見せるため、11月4日の終値で買ったことにして、11月17日までの実際の終値で計算しています。エヌビディアの11/12・11/13の終値は、報じられた下落率から計算した近い値です。マイクロソフトの11/5の終値も近い値です。関西電力の11/17とLINEヤフーの11/11は終値を確認できなかったため、関西電力は前の日の値のまま、LINEヤフーは表示していません。原油は報道からの概算です。本番では毎朝7時ごろにClaudeが記事と株価を更新します。投資のおすすめではありません。";
 
+  /* そのほかのニュース（株価と関係しない話題。重めの話題はたたんで表示） */
+  const OTH = DAY.other || [];
+  document.getElementById("otherN").textContent = OTH.length ? `（${OTH.length}）` : "";
+  const ol = document.getElementById("otherLink"); ol.hidden = !OTH.length; ol.textContent = `そのほかのニュース ${OTH.length}本`;
+  const ocard = o => `<div class="ocard">
+      <div class="otop"><span class="tag t-${o.tag}">${o.tag}</span><span class="when">${esc(o.when||"")}</span></div>
+      <h3>${esc(o.title)}</h3>
+      ${o.body.map(p=>`<p>${withTerms(p)}</p>`).join("")}
+      ${o.todo ? `<div class="todo"><b>自分でできること</b><ul>${o.todo.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>` : ""}
+      <div class="src">出典：${o.sources.map(([t,u])=>`<a href="${u}" target="_blank" rel="noopener">${esc(t)}</a>`).join("")}</div>
+    </div>`;
+  document.getElementById("otherList").innerHTML = OTH.length ? `<p class="olead">株の値動きとは関係しない、今日の話題です。少し重めの話題は、たたんであります。読みたいときだけ開いてください。</p>` + OTH.map(o => o.heavy
+      ? `<details class="heavy"><summary><small>少し重めの話題・${esc(o.tag)}${o.when?"・"+esc(o.when):""}</small><b>${esc(o.title)}</b><em>タップで読む</em></summary>${ocard(o)}</details>`
+      : ocard(o)).join("") : `<p class="olead">今日は、そのほかのニュースはありません。</p>`;
+
   /* 記事 */
   document.getElementById("articleList").innerHTML = DAY.articles.map((a,ai) => {
     const r = relOf(a);
@@ -1159,6 +1251,7 @@ function show(){
   if (el) el.scrollIntoView({block:"start"}); else if (changed && key !== "stocks/d" && SCROLLS[key] != null) window.scrollTo(0, SCROLLS[key]); else window.scrollTo(0,0);
 }
 function go(view, target){
+  if (view === "articles" && target) setKind("stock");
   if (view === "stocks" && target && target.startsWith("s-")){ location.hash = "#stocks/" + target.slice(2); return; }
   pendingTarget = target || null;
   if (location.hash === "#"+view) show(); else location.hash = "#"+view;
@@ -1244,7 +1337,11 @@ function doTrade(){
 let resetArmed = false;
 
 /* ===== クリック ===== */
+let artKind = "stock";
+function setKind(k){ artKind = k; document.querySelectorAll(".kseg [data-kind]").forEach(b=>b.setAttribute("aria-pressed", b.dataset.kind===k)); document.getElementById("articleList").hidden = k!=="stock"; document.getElementById("otherList").hidden = k!=="other"; }
 document.addEventListener("click", e => {
+  const kb = e.target.closest(".kseg [data-kind]"); if (kb){ setKind(kb.dataset.kind); return; }
+  if (e.target.closest("[data-other]")){ go("articles"); setKind("other"); scrollTo(0,0); return; }
   const t = e.target.closest(".term"); if (t){ openWord(t.dataset.term); return; }
   if (e.target.closest("[data-close]")){ closeSheet(); return; }
   const tr = e.target.closest("[data-trade]"); if (tr){ const [id,side]=tr.dataset.trade.split(":"); openTrade(id, side); return; }

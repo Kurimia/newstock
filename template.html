@@ -350,6 +350,33 @@ details.more[open] summary::after{content:"－"}
 .seg{display:grid;grid-template-columns:1fr 1fr;background:var(--bg);border-radius:999px;padding:4px;margin:12px 0}
 .seg button{border:0;background:none;border-radius:999px;padding:8px;font-weight:700;cursor:pointer;color:var(--muted)}
 .seg button[aria-pressed="true"]{background:var(--ink);color:var(--card)}
+.kseg{background:var(--card);margin:0 0 14px}
+.kseg span{font-family:var(--font-num);margin-left:4px;opacity:.7}
+.olink{margin:4px 0 0 auto;display:flex}
+.olink[hidden],.olist[hidden],#articleList[hidden]{display:none!important}
+.olist{display:flex;flex-direction:column;gap:12px}
+.olead{font-size:13px;color:var(--muted);line-height:1.7;margin:0 2px 2px}
+.ocard{background:var(--card);border-radius:var(--r-lg);padding:18px 18px 16px;display:flex;flex-direction:column;gap:10px}
+.ocard .otop{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ocard .when{font-size:12px;color:var(--muted)}
+.ocard h3{font-size:18px;line-height:1.55;margin:0}
+.ocard p{margin:0;font-size:15px;line-height:1.8}
+.ocard ul{margin:0;padding-left:1.2em;font-size:15px;line-height:1.8}
+.ocard .todo{background:var(--peach-soft);border-radius:var(--r-sm);padding:12px 14px}
+.ocard .todo b{display:block;font-size:13px;margin-bottom:4px}
+.ocard .src{font-size:12px}
+.tag.t-くらし{background:#e7f6ee;color:#1f7a4d}
+.tag.t-ほっこり{background:#fff1c9;color:#8a5a00}
+.tag.t-社会,.tag.t-国際{background:var(--bg);color:var(--ink)}
+details.heavy{background:var(--card);border-radius:var(--r-lg);border:1.5px dashed var(--line)}
+details.heavy>summary{list-style:none;cursor:pointer;padding:16px 18px;display:flex;flex-direction:column;gap:4px}
+details.heavy>summary::-webkit-details-marker{display:none}
+details.heavy>summary small{font-size:12px;color:var(--muted)}
+details.heavy>summary b{font-size:15px;line-height:1.6}
+details.heavy>summary em{font-style:normal;font-size:13px;font-weight:700;color:var(--orange)}
+details.heavy[open]>summary em{display:none}
+details.heavy .ocard{padding-top:0;background:none}
+details.heavy .ocard>.otop,details.heavy .ocard>h3{display:none}
 .tpx{font-size:14px;color:var(--muted)}
 .tpx b{font-family:var(--font-num);font-size:22px;font-weight:600;color:var(--ink)}
 .qty{display:flex;align-items:center;justify-content:center;gap:12px;margin:6px 0 4px}
@@ -529,6 +556,7 @@ details.more[open] summary::after{content:"－"}
     <div class="mkt" id="mkt"></div>
     <div class="sec"><h2 id="newsCount">今日のニュース</h2><a class="more-link" href="#articles">ぜんぶ読む</a></div>
     <div class="hnews" id="hnews"></div>
+    <button type="button" class="more-link olink" id="otherLink" data-other hidden></button>
     <div class="sec"><h2>マイ銘柄</h2><a class="more-link" href="#stocks">くわしく</a></div>
     <div class="card slist" id="hstocks"></div>
     <p class="howto" id="howto"></p>
@@ -536,7 +564,9 @@ details.more[open] summary::after{content:"－"}
 
   <section class="view" id="view-articles">
     <div class="sec"><h2>今日の記事</h2><button type="button" class="more-link" data-story>ハイライト</button></div>
+    <div class="seg kseg" role="group" aria-label="記事の種類"><button type="button" data-kind="stock" aria-pressed="true">株のニュース</button><button type="button" data-kind="other" aria-pressed="false">そのほか<span id="otherN"></span></button></div>
     <div id="articleList" style="display:flex;flex-direction:column;gap:16px"></div>
+    <div id="otherList" class="olist" hidden></div>
   </section>
 
   <section class="view" id="view-stocks">
@@ -782,6 +812,21 @@ function render(){
     </button>`;}).join("");
   document.getElementById("howto").textContent = "試作版：データは11月18日朝の時点です。値動きを見せるため、11月4日の終値で買ったことにして、11月17日までの実際の終値で計算しています。エヌビディアの11/12・11/13の終値は、報じられた下落率から計算した近い値です。マイクロソフトの11/5の終値も近い値です。関西電力の11/17とLINEヤフーの11/11は終値を確認できなかったため、関西電力は前の日の値のまま、LINEヤフーは表示していません。原油は報道からの概算です。本番では毎朝7時ごろにClaudeが記事と株価を更新します。投資のおすすめではありません。";
 
+  /* そのほかのニュース（株価と関係しない話題。重めの話題はたたんで表示） */
+  const OTH = DAY.other || [];
+  document.getElementById("otherN").textContent = OTH.length ? `（${OTH.length}）` : "";
+  const ol = document.getElementById("otherLink"); ol.hidden = !OTH.length; ol.textContent = `そのほかのニュース ${OTH.length}本`;
+  const ocard = o => `<div class="ocard">
+      <div class="otop"><span class="tag t-${o.tag}">${o.tag}</span><span class="when">${esc(o.when||"")}</span></div>
+      <h3>${esc(o.title)}</h3>
+      ${o.body.map(p=>`<p>${withTerms(p)}</p>`).join("")}
+      ${o.todo ? `<div class="todo"><b>自分でできること</b><ul>${o.todo.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>` : ""}
+      <div class="src">出典：${o.sources.map(([t,u])=>`<a href="${u}" target="_blank" rel="noopener">${esc(t)}</a>`).join("")}</div>
+    </div>`;
+  document.getElementById("otherList").innerHTML = OTH.length ? `<p class="olead">株の値動きとは関係しない、今日の話題です。少し重めの話題は、たたんであります。読みたいときだけ開いてください。</p>` + OTH.map(o => o.heavy
+      ? `<details class="heavy"><summary><small>少し重めの話題・${esc(o.tag)}${o.when?"・"+esc(o.when):""}</small><b>${esc(o.title)}</b><em>タップで読む</em></summary>${ocard(o)}</details>`
+      : ocard(o)).join("") : `<p class="olead">今日は、そのほかのニュースはありません。</p>`;
+
   /* 記事 */
   document.getElementById("articleList").innerHTML = DAY.articles.map((a,ai) => {
     const r = relOf(a);
@@ -921,6 +966,7 @@ function show(){
   if (el) el.scrollIntoView({block:"start"}); else if (changed && key !== "stocks/d" && SCROLLS[key] != null) window.scrollTo(0, SCROLLS[key]); else window.scrollTo(0,0);
 }
 function go(view, target){
+  if (view === "articles" && target) setKind("stock");
   if (view === "stocks" && target && target.startsWith("s-")){ location.hash = "#stocks/" + target.slice(2); return; }
   pendingTarget = target || null;
   if (location.hash === "#"+view) show(); else location.hash = "#"+view;
@@ -1006,7 +1052,11 @@ function doTrade(){
 let resetArmed = false;
 
 /* ===== クリック ===== */
+let artKind = "stock";
+function setKind(k){ artKind = k; document.querySelectorAll(".kseg [data-kind]").forEach(b=>b.setAttribute("aria-pressed", b.dataset.kind===k)); document.getElementById("articleList").hidden = k!=="stock"; document.getElementById("otherList").hidden = k!=="other"; }
 document.addEventListener("click", e => {
+  const kb = e.target.closest(".kseg [data-kind]"); if (kb){ setKind(kb.dataset.kind); return; }
+  if (e.target.closest("[data-other]")){ go("articles"); setKind("other"); scrollTo(0,0); return; }
   const t = e.target.closest(".term"); if (t){ openWord(t.dataset.term); return; }
   if (e.target.closest("[data-close]")){ closeSheet(); return; }
   const tr = e.target.closest("[data-trade]"); if (tr){ const [id,side]=tr.dataset.trade.split(":"); openTrade(id, side); return; }
